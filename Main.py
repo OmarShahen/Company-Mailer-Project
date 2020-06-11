@@ -7,6 +7,11 @@ app = Flask(__name__)
 def loginFormPage():
     return render_template('LoginForm.html')
 
+@app.route('/RegisterationForm')
+def registerForm():
+    return render_template('RegisterForm.html')
+
+
 
 
 if __name__ == "__main__":
