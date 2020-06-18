@@ -35,8 +35,19 @@ def validLogin():
             if user.get_email() == email and user.get_password() == password:
                 session['email'] = email
                 session['password'] = password
+                user.set_active_online()
                 return render_template("userPage.html",user = user)
 
+@app.route('/logout')
+def logout():
+
+    for user in allUsers:
+        if session['email'] == user.get_email() and session['password'] == user.get_password():
+            session.pop('email',None)
+            session.pop('password',None)
+            user.set_active_offline()
+            return render_template('logout.html')
+    
     
     
                

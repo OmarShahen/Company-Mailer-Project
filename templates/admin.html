@@ -17,7 +17,8 @@
   function viewAllUsers()
   {
     var text = "{% for i in allUsers: %}\
-                {{i}} <br>\
+                {{i.get_name()}}       \
+                {{i.get_active()}}<br>\
                 {% endfor %}";
 
         document.getElementById('demo').innerHTML = text;
