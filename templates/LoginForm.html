@@ -4,7 +4,11 @@
     </head>
 <body>
 
-    <form action = "" method = "POST">
+    <h1>Welcome to mail services</h1>
+
+    <form action = "http://localhost:5000/ValidLogin" method = "POST">
+        <fieldset>
+            <legend>Login Form</legend>
         <table>
             <caption>Login Form</caption>
             <tr>
@@ -14,15 +18,13 @@
                 <td>Password: </td><td><input type = "password" name = "password"></td>
             </tr>
             <tr>
-                <td><input type = "submit" value = "Submit"></td>
+                <td><input type = "submit" value = "Login"></td>
                 <td><input type = "reset" value = "Reset"></td>
+                <td><a href = "/RegisterationForm">SignUP!</a>
             </tr>
             </table>
+            </fieldset>
 
         </form>
-
-
-
-
 </body>
 </html>

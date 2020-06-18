@@ -4,10 +4,12 @@
     </head>
 <body>
 
-    <form action = "" method="POST">
+    <form action = "http://localhost:5000/ValidationRegistration" method="POST">
+        <fieldset>
+            <legend>Registeration Form</legend>
         <table>
             <tr>
-                <td>Name: </td><td><input type = "text" name = "first_name"></td>
+                <td>Name: </td><td><input type = "text" name = "name"></td>
             </tr>
             <tr>
                 <td>email: </td><td><input type = "email" name = "email"></td>
@@ -20,7 +22,7 @@
                 <td><input type = "radio" name = "gender" value = "Female">Female</td>
             </tr>
             <tr>
-                <td>Date of Birth: </td><td><input type = "text" name = "dateOfBirth"></td>
+                <td>Date of Birth: </td><td><input type = "date" name = "dateOfBirth"></td>
             </tr>
             <tr>
                 <td>City: </td><td><input type = "text" name = "city"></td>
@@ -39,6 +41,7 @@
                 <td><input type = "reset" value = "Reset"></td>
             </tr>
         </table>
+        </fieldset>
         </form>
 </body>
 </html>
