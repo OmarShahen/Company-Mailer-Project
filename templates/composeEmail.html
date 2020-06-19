@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title>compose Email</title>
+    </head>
+    <h2>Mail Services</h2>
+    <ul>
+        <li><a href = '/'>HomePage</a></li>
+        <li><a href = '/composeEmail'>Compose Email</a></li>
+        <li>Inbox</li>
+        <li><a href = '/logout'>Logout</a></li>
+        <li>Contact US</li>
+    </ul>
+    <h4>Welcome {{userName}}</h4>
+    <div>
+        <h4>Compose Message</h4>
+        <form action = "http://localhost:5000/composeEmail/" method="POST">
+        To: <input type = 'email' name = "reciever" placeholder="reciever"><br>
+        Subject: <input type = 'text' name = 'subject' placeholder="subject"><br><br>
+        Message<br>
+        <textarea name = 'mailInfo' cols = '50' rows = '10'>
+        </textarea><br>
+        <input type = 'submit' value = 'send'>
+        </form>
+    </div>
+    <p>Do any kind of operation related to Mail Services such as compose email,<br>
+        inbox.And if you have any Query just contact us.by clicking the above links.</p>
+    </body>
+</html>

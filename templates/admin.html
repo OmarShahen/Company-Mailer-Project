@@ -18,7 +18,7 @@
   {
     var text = "{% for i in allUsers: %}\
                 {{i.get_name()}}       \
-                {{i.get_active()}}<br>\
+                {{i.get_active_str()}}<br>\
                 {% endfor %}";
 
         document.getElementById('demo').innerHTML = text;
