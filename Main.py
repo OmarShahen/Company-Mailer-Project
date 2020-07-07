@@ -3,7 +3,12 @@ from admin import admin
 from User import user
 import smtplib, ssl
 import os
-
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email import encoders
+from email.mime.base import MIMEBase
+import send_mail
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "Shahen"
@@ -44,6 +49,7 @@ def validLogin():
         
         for user in allUsers: 
             if user.get_email() == email and user.get_password() == password:
+                session['name'] = user.get_name()
                 session['email'] = email
                 session['password'] = password
                 session['appPassword'] = user.get_appPassword()
@@ -67,6 +73,7 @@ def Validation():
         userObject = user(name,email,password,gender,dateOfBirth,city,country,contact)
         userObject.set_appPassword(appPassword)
         allUsers.append(userObject)
+        session['name'] = name
         session['email'] == email
         session['password'] == password
         session['appPassword'] == appPassword
@@ -79,6 +86,7 @@ def logout():
 
     for user in allUsers:
         if session['email'] == user.get_email() and session['password'] == user.get_password():
+            session.pop('name',None)
             session.pop('email',None)
             session.pop('password',None)
             session.pop('appPassword',None)
@@ -91,32 +99,34 @@ def composeEmail():
 
 @app.route('/composeEmail/',methods = ['POST'])
 def sendingMail():
+
     if request.method == 'POST':
-        port = 465
-        context = ssl.create_default_context()
-        sender_email = session['email']
-        sender_password = session['appPassword']
-        receiver_email = request.form['reciever']
-        email_subject = request.form['subject']
-        message_body = request.form['mailInfo'].strip()
-        message = """from : %s \nto:%s\nsubject: %s\n\n%s"""%(sender_email,receiver_email,email_subject,message_body)
-        
+        sender = session['email']
+        sender_password  = session['appPassword']
+        receiver = request.form['reciever']
+        subject = request.form['subject']
+        body = request.form['mailInfo']
+        if request.files:
+            sender_file = request.files["user_file"]
+            file_name = secure_filename(sender_file.filename)
+            root_path = "E:\\Mailer\\Users"
+            main_path = os.path.join(root_path, session['name'], "sent")
+            print(main_path)
+            try:
+                os.makedirs(main_path)
+                print("The Directry is created and saved")
+            except OSError as error:
+                print("The Directory already Exist")
+            file_location = os.path.join(main_path, file_name)
+            sender_file.save(file_location)
+            send_mail.send_mail_attachment(sender, sender_password, receiver, subject, body, file_location, file_name)
+            print("Saved Successfully")
+        send_mail.send_mail(sender, sender_password, receiver, subject, body)
+
+
+        return "<h1>Sent Successfully</h1>"#send_mail.send_mail(sender, sender_password,receiver,subject,body,file_attachment)
 
         
-        
-
-        print("sender email: ",sender_email)
-        print("senderemail: ",session['email'])
-        print("sender password: ",sender_password)
-        print("sender password: ",session['appPassword'])
-        print("receiver: ",request.form['reciever'])
-        print("receiver: ",receiver_email)
-        print("message: ",message.strip())
-        print(type(message))
-        with smtplib.SMTP_SSL("smtp.gmail.com",port,context = context) as server:
-            server.login(sender_email,sender_password)
-            server.sendmail(sender_email,receiver_email,message)
-            return "<h1>Sent Successfully</h1>"
 
 
 

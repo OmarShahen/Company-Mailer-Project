@@ -13,12 +13,13 @@
     <h4>Welcome {{userName}}</h4>
     <div>
         <h4>Compose Message</h4>
-        <form action = "http://localhost:5000/composeEmail/" method="POST">
+        <form action = "http://localhost:5000/composeEmail/" method="POST" enctype="multipart/form-data">
         To: <input type = 'email' name = "reciever" placeholder="reciever"><br>
         Subject: <input type = 'text' name = 'subject' placeholder="subject"><br><br>
         Message<br>
         <textarea name = 'mailInfo' cols = '50' rows = '10'>
         </textarea><br>
+        <p>Attach a File: <input type = "file" name = "user_file"></p>
         <input type = 'submit' value = 'send'>
         </form>
     </div>
