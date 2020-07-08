@@ -81,6 +81,49 @@ def Validation():
     else:
         return '<h1>Failed</h1>'
 
+@app.route('/View profile')
+def view_profile():
+    for user in allUsers:
+        if user.get_email() == session['email'] and user.get_password() == session['password']:
+            return render_template('ViewProfile.html',user = user)
+
+@app.route('/EditProfileForm', methods = ['POST','GET'])
+def set_new_attributes():
+    for user in allUsers:
+        if user.get_password() == session['password'] and user.get_email() == session['email']:
+            return render_template("editProfileForm.html", user = user)
+
+@app.route('/Edited' , methods = ['POST'])
+def edit_profile():
+
+    if request.method == "POST":
+        new_name = request.form['user_name']
+        new_email = request.form['user_email']
+        new_password = request.form['user_password']
+        new_appPassword = request.form['user_appPassword']
+        new_gender = request.form['user_gender']
+        new_dateOfBirth = request.form['user_birthDate']
+        new_city = request.form['user_city']
+        new_country = request.form['user_country']
+        new_contact = request.form['user_contact']
+
+        for user in allUsers:
+            if user.get_password() == session['password'] and user.get_email() == session['email']:
+                user.set_name(new_name)
+                user.set_email(new_email)
+                user.set_password(new_password)
+                user.set_appPassword(new_appPassword)
+                user.set_gender(new_gender)
+                user.set_dateOfBirth(new_dateOfBirth)
+                user.set_city(new_city)
+                user.set_country(new_country)
+                user.set_contact(new_contact)
+                return "<h1>Edited Successfully</h1>"
+        return "<h1>Does not Exist</h1>"
+
+    
+            
+
 @app.route('/logout')
 def logout():
 

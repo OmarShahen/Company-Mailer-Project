@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <h2>Mail Services</h2>
+        <ul>
+            <li><a href = '/'>HomePage</a></li>
+            <li><a href = '/composeEmail'>Compose Email</a></li>
+            <li>Inbox</li>
+            <li><a href = '/View profile'>View Profile</a></li>
+            <li><a href = '/EditProfileForm'>Edit Profile</a></li>
+            <li><a href = '/logout'>Logout</a></li>
+            <li>Contact US</li>
+        </ul>
+
+        <form method="POST" action = "http://localhost:5000/Edited">
+            <table>
+                <tr><td>Name: </td><td><input type = "text" name = "user_name" value = "{{user.get_name()}}"></td></tr>
+            <tr><td>Email: </td><td><input type="email" name = "user_email" value = "{{user.get_email()}}"></td></tr>
+            <tr><td>Password: </td><td><input type = "password" name = "user_password" value = "{{user.get_password()}}"></td></tr>
+            <tr><td>App Password: </td><td><input type = "password" name = "user_appPassword" value = "{{user.get_appPassword()}}"></td></tr>
+            <tr><td>Gender: </td><td><input type = "text" name = "user_gender" value = "{{user.get_gender()}}"></td></tr>
+            <tr><td>Date of Birth: </td><td><input type = "text" name = "user_birthDate" value = "{{user.get_dateOfBirth()}}"></td></tr>
+            <tr><td>City: </td><td><input type = "text" name = "user_city" value = "{{user.get_city()}}"></td></tr>
+            <tr><td>Country: </td><td><input type = "text" name = "user_country" value ="{{user.get_country()}}"></td></tr>
+            <tr><td>Contact: </td><td><input type = "text" name = "user_contact" value ="{{user.get_contact()}}"></td></tr>
+            <tr><td><input type="submit" value = "Submit"></td><td><input type = "reset" value = "Reset"></td></tr>
+        </table>
+        </form>
+    </body>
+</html>
