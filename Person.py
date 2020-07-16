@@ -54,6 +54,6 @@ class person:
         
     
     def __str__(self):
-        return self.name +" "+ self.password +" "+ self.email +" "+ self.gender +" "+ self.dateOfBirth +" "+ self.city +" "+ self.state +" "+ self.country +" "+ self.contact
+        return self.name +" "+ self.password +" "+ self.email +" "+ self.gender +" "+ self.dateOfBirth +" "+ self.city +" "+ self.country +" "+ self.contact
 
     

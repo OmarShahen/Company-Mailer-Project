@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <h2>Mail Services</h2>
+        <ul>
+            <li><a href = '/'>HomePage</a></li>
+            <li><a href = '/composeEmail'>Compose Email</a></li>
+            <li><a href = '/inbox'>Inbox</a></li>
+            <li><a href = '/trash'>Trash</a></li>
+            <li><a href = '/sentMails'>Sent Mails</a></li>
+            <li><a href = '/View profile'>View Profile</a></li>
+            <li><a href = '/EditProfileForm'>Edit Profile</a></li>
+            <li><a href = '/allUsers'>View All Users</a>
+            <li><a href = '/logout'>Logout</a></li>
+            <li>Contact US</li>
+        </ul>
+        <table border = 1>
+            <tr>
+                <td>Name</td>
+                <td>E-mail</td>
+                <td>Gender</td>
+                <td>Country</td>
+            </tr>
+            {%for user in allUsers:%}
+                <tr>
+                    <td>{{user.get_name()}}</td>
+                    <td>{{user.get_email()}}</td>
+                    <td>{{user.get_gender()}}</td>
+                    <td>{{user.get_country()}}</td>
+                </tr>          
+            {%endfor%}
+        </table>
+    </body>
+    </html>

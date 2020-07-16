@@ -1,13 +1,7 @@
 from flask import *
 from admin import admin
 from User import user
-import smtplib, ssl
 import os
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email import encoders
-from email.mime.base import MIMEBase
-import send_mail
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -15,13 +9,13 @@ app.secret_key = "Shahen"
 allUsers = []
 adminOfApplication = admin('omar','omarredaelsayedmohamed@gmail.com','admin123','male','6/6/2000','Alexandria','Egypt','01065630331')
 
-user1 = user('youssef','mailerfirstmailerlast@gmail.com','FirstLast11','male','8/8/2006','Alexandria','Egypt','01265630331')
+user1 = user('youssef','mailerfirstmailerlast@gmail.com','FirstLast11','Male','8/8/2006','Alexandria','Egypt','01265630331')
 user1.set_appPassword(os.environ.get('FirstMailerPassword'))
 
-user2 = user('Ahmed','mailersecondmailerlast@gmail.com','SecondLast11','male','5/12/2006','Alexandria','Egypt','01006615471')
+user2 = user('Ahmed','mailersecondmailerlast@gmail.com','SecondLast11','Male','5/12/2006','Alexandria','Egypt','01006615471')
 user2.set_appPassword(os.environ.get('SecondMailerPassword'))
 
-user3 = user('Omar','omarredaelsayedmohamed@gmail.com','Shahen77','male','6/6/2000','Alexandria','Egypt','01065630331')
+user3 = user('Omar','omarredaelsayedmohamed@gmail.com','Shahen77','Male','6/6/2000','Alexandria','Egypt','01065630331')
 user3.set_appPassword(os.environ.get('mailPassword'))
 
 allUsers.append(user1)
@@ -121,9 +115,6 @@ def edit_profile():
                 return "<h1>Edited Successfully</h1>"
         return "<h1>Does not Exist</h1>"
 
-    
-            
-
 @app.route('/logout')
 def logout():
 
@@ -140,45 +131,48 @@ def logout():
 def composeEmail():
     return render_template('composeEmail.html',userName = session['email'])
 
-@app.route('/composeEmail/',methods = ['POST'])
+@app.route('/composeEmail/', methods = ['POST'])
 def sendingMail():
 
-    if request.method == 'POST':
-        sender = session['email']
-        sender_password  = session['appPassword']
-        receiver = request.form['reciever']
-        subject = request.form['subject']
-        body = request.form['mailInfo']
-        if request.files:
-            sender_file = request.files["user_file"]
-            file_name = secure_filename(sender_file.filename)
-            root_path = "E:\\Mailer\\Users"
-            main_path = os.path.join(root_path, session['name'], "sent")
-            print(main_path)
-            try:
-                os.makedirs(main_path)
-                print("The Directry is created and saved")
-            except OSError as error:
-                print("The Directory already Exist")
-            file_location = os.path.join(main_path, file_name)
-            sender_file.save(file_location)
-            send_mail.send_mail_attachment(sender, sender_password, receiver, subject, body, file_location, file_name)
-            print("Saved Successfully")
-        send_mail.send_mail(sender, sender_password, receiver, subject, body)
+    if request.method == "POST":
 
+        sender_name = session['name']
+        sender_mail = session['email']
+        receiver_mail = request.form['reciever']
+        mail_subject = request.form['subject']
+        mail_body = request.form['mailInfo'].strip()
 
-        return "<h1>Sent Successfully</h1>"#send_mail.send_mail(sender, sender_password,receiver,subject,body,file_attachment)
+        email = {"sender_name": sender_name,
+                 "sender_mail": sender_mail,
+                 "receiver_mail": receiver_mail,
+                 "subject": mail_subject,
+                 "body": mail_body
+                }
 
+        for user in allUsers:
+            if user.get_email() == session['email']:
+                user.add_sent_mail(email)       
+            if user.get_email() == receiver_mail:
+                user.add_inbox(email)
+                
+        return redirect(url_for('composeEmail'))
         
+@app.route("/inbox")
+def see_inbox():
+    for user in allUsers:
+        if user.get_email() == session["email"]:
+            return render_template("inbox.html", inbox_mails = user.get_all_inbox())
 
+@app.route("/sentMails")
+def see_sent_mails():
+    for user in allUsers:
+        if user.get_email() == session['email']:
+            return render_template("sentMails.html", sent_mails = user.get_all_sent_mails()) 
 
-
-      
-
-
-
-
-
+@app.route("/allUsers")
+def view_all_users():
+    
+    return render_template("allUsers.html", allUsers = allUsers)
 
 
 if __name__ == "__main__":
