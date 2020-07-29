@@ -49,7 +49,7 @@ def validLogin():
                 session['appPassword'] = user.get_appPassword()
                 user.set_active_online()
                 return render_template("userPage.html",user = user)
-                 
+      
 @app.route('/ValidationRegistration',methods = ['POST']) #Creating User
 def Validation():
     if request.method == 'POST':
@@ -131,7 +131,7 @@ def logout():
 def composeEmail():
     return render_template('composeEmail.html',userName = session['email'])
 
-@app.route('/composeEmail/', methods = ['POST'])
+@app.route('/sending_mail', methods = ['POST'])
 def sendingMail():
 
     if request.method == "POST":
@@ -142,7 +142,8 @@ def sendingMail():
         mail_subject = request.form['subject']
         mail_body = request.form['mailInfo'].strip()
 
-        email = {"sender_name": sender_name,
+        email = {
+                 "sender_name": sender_name,
                  "sender_mail": sender_mail,
                  "receiver_mail": receiver_mail,
                  "subject": mail_subject,
@@ -151,28 +152,45 @@ def sendingMail():
 
         for user in allUsers:
             if user.get_email() == session['email']:
-                user.add_sent_mail(email)       
+                user.add_to_outbox(email)       
             if user.get_email() == receiver_mail:
                 user.add_inbox(email)
                 
         return redirect(url_for('composeEmail'))
         
+
+@app.route("/outbox")
+def see_sent_mails():
+    for user in allUsers:
+        if user.get_email() == session['email']:
+            return render_template("outbox.html", outbox_mails = user.get_all_outbox()) 
+
 @app.route("/inbox")
 def see_inbox():
     for user in allUsers:
         if user.get_email() == session["email"]:
             return render_template("inbox.html", inbox_mails = user.get_all_inbox())
 
-@app.route("/sentMails")
-def see_sent_mails():
-    for user in allUsers:
-        if user.get_email() == session['email']:
-            return render_template("sentMails.html", sent_mails = user.get_all_sent_mails()) 
 
 @app.route("/allUsers")
 def view_all_users():
     
     return render_template("allUsers.html", allUsers = allUsers)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

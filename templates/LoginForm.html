@@ -5,6 +5,7 @@
 <body>
 
     <h1>Welcome to mail services</h1>
+    <h2 id = "demo"></h2>
 
     <form action = "http://localhost:5000/ValidLogin" method = "POST">
         <fieldset>
@@ -12,19 +13,49 @@
         <table>
             <caption>Login Form</caption>
             <tr>
-                <td>Email: </td><td><input type = "email" name = "email"></td>
+                <td>Email: </td><td><input type = "email" name = "email" id = "user_email"></td>
             </tr>
             <tr>
-                <td>Password: </td><td><input type = "password" name = "password"></td>
+                <td>Password: </td><td><input type = "password" name = "password" id = "user_password"></td>
             </tr>
             <tr>
                 <td><input type = "submit" value = "Login"></td>
                 <td><input type = "reset" value = "Reset"></td>
+                <td><button type = "button" onclick = "submit_json();">Test Json</button>
                 <td><a href = "/RegisterationForm">SignUP!</a>
             </tr>
             </table>
             </fieldset>
 
         </form>
+    <script>
+        function submit_json()
+        {
+            var mail = document.getElementById("user_email");
+            var password = document.getElementById("user_password");
+            var entry = { 
+                            mail: mail.value,
+                            password: password.value
+                        };
+            
+            fetch('http://localhost:5000/receivedData', {
+
+                method: "POST",
+                credentials: "include",
+                body: JSON.stringify(entry),
+                cache: "no-cache",
+                headers: new Headers({
+                    "content-type": "application/json"})
+                })
+        }
+
+
+            })
+
+
+
+        
+        }
+    </script>
 </body>
 </html>

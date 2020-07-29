@@ -1,24 +1,30 @@
 <html>
     <head>
         <title>compose Email</title>
+        <link rel = "stylesheet" href = "{{url_for('static', filename = 'css/basic_layout.css')}}">
+
     </head>
-    <h2>Mail Services</h2>
-    <ul>
-        <li><a href = '/'>HomePage</a></li>
-        <li><a href = '/composeEmail'>Compose Email</a></li>
-        <li><a href = '/inbox'>Inbox</a></li>
-        <li><a href = '/trash'>Trash</a></li>
-        <li><a href = '/sentMails'>Sent Mails</a></li>
-        <li><a href = '/View profile'>View Profile</a></li>
-        <li><a href = '/EditProfileForm'>Edit Profile</a></li>
-        <li><a href = '/allUsers'>View All Users</a>
-        <li><a href = '/logout'>Logout</a></li>
-        <li>Contact US</li>
-    </ul>
+    <div id = "headerBar">
+        <h2>Mail Services</h2>
+    </div>
+    <div id = "navBar">
+        <ul>
+            <li><a href = '/'>HomePage</a></li>
+            <li><a href = '/composeEmail'>Compose Email</a></li>
+            <li><a href = '/inbox'>Inbox</a></li>
+            <li><a href = '/trash'>Trash</a></li>
+            <li><a href = '/outbox'>Outbox</a></li>
+            <li><a href = '/View profile'>View Profile</a></li>
+            <li><a href = '/EditProfileForm'>Edit Profile</a></li>
+            <li><a href = '/allUsers'>View All Users</a>
+            <li><a href = '/logout'>Logout</a></li>
+            <li>Contact US</li>
+        </ul>
+    </div>
     <h4>Welcome {{userName}}</h4>
     <div>
         <h4>Compose Message</h4>
-        <form action = "http://localhost:5000/composeEmail/" method="POST" enctype="multipart/form-data">
+        <form action = "http://localhost:5000/sending_mail" method="POST" enctype="multipart/form-data">
         To: <input type = 'email' name = "reciever" placeholder="reciever"><br>
         Subject: <input type = 'text' name = 'subject' placeholder="subject"><br><br>
         Message<br>

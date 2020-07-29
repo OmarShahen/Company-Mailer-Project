@@ -1,21 +1,27 @@
 <html>
     <head>
         <title>User</title>
+        <link rel = "stylesheet" href = "{{url_for('static', filename = 'css/basic_layout.css')}}">
+
     </head>
 <body>
-    <h2>Mail Services</h2>
-    <ul>
-        <li><a href = '/'>HomePage</a></li>
-        <li><a href = '/composeEmail'>Compose Email</a></li>
-        <li><a href = '/inbox'>Inbox</a></li>
-        <li><a href = '/trash'>Trash</a></li>
-        <li><a href = '/sentMails'>Sent Mails</a></li>
-        <li><a href = '/View profile'>View Profile</a></li>
-        <li><a href = '/EditProfileForm'>Edit Profile</a></li>
-        <li><a href = '/allUsers'>View All Users</a>
-        <li><a href = '/logout'>Logout</a></li>
-        <li>Contact US</li>
-    </ul>
+    <div id = "headerBar">
+        <h2>Mail Services</h2>
+    </div>
+    <div id = "navBar">
+        <ul>
+            <li><a href = '/'>HomePage</a></li>
+            <li><a href = '/composeEmail'>Compose Email</a></li>
+            <li><a href = '/inbox'>Inbox</a></li>
+            <li><a href = '/trash'>Trash</a></li>
+            <li><a href = '/outbox'>Outbox</a></li>
+            <li><a href = '/View profile'>View Profile</a></li>
+            <li><a href = '/EditProfileForm'>Edit Profile</a></li>
+            <li><a href = '/allUsers'>View All Users</a>
+            <li><a href = '/logout'>Logout</a></li>
+            <li>Contact US</li>
+        </ul>
+    </div>
 <h4>Welcome {{user.get_name().upper()}}</h4>
 <p>Do any kind of operation related to Mail Services such as compose email,<br>
     inbox.And if you have any Query just contact us.by clicking the above links.</p>
