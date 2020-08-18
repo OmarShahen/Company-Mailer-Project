@@ -1,27 +1,24 @@
 from Person import person
+from datetime import datetime
 
 class user(person):
 
     no_Of_Users = 0
     no_of_inbox = 0
     no_of_outbox = 0
+    id_number = 11
     
     def __init__(self,name,email,password,gender,dateOfBirth,city,country,contact):
         person.__init__(self,name,email,password,gender,dateOfBirth,city,country,contact)
         self.active = True
+        self.account_creaion_date = datetime.now()
         user.no_Of_Users += 1
+        self.user_id = user.id_number
+        user.id_number += 1
         self.appPassword = None
         self.inbox_mails = []
         self.outbox_mails = []
         self.trash_mails = []
-
-        
-
-    
-    def set_appPassword(self,appPassword):
-        self.appPassword = appPassword  
-    def get_appPassword(self):
-        return self.appPassword
 
 
 
@@ -60,8 +57,11 @@ class user(person):
     def get_all_trash(self):
         return self.trash_mails
 
-
+    def get_user_id(self):
+        return self.user_id
     
+    def get_account_creation_date(self):
+        return self.account_creaion_date
     
         
 

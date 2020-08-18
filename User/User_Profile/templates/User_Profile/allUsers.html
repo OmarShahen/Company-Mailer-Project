@@ -27,14 +27,12 @@
                 <th>Name</th>
                 <th>E-mail</th>
                 <th>Gender</th>
-                <th>Country</th>
             </tr>
             {%for user in allUsers:%}
                 <tr>
-                    <td>{{user.get_name()}}</td>
-                    <td>{{user.get_email()}}</td>
-                    <td>{{user.get_gender()}}</td>
-                    <td>{{user.get_country()}}</td>
+                    <td>{{user[0]}}</td>
+                    <td>{{user[1]}}</td>
+                    <td>{{user[2]}}</td>
                 </tr>          
             {%endfor%}
         </table>

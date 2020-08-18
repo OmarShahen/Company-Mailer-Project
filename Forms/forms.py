@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, session, request, redirect, url_fo
 from admin import admin
 from user import user
 from creating_users import allUsers, adminOfApplication
+import sqlite3
 
 forms_bp = Blueprint('forms_bp', __name__, template_folder = 'templates', static_folder = 'static')
 
@@ -28,22 +29,29 @@ def validLogin():
             session['password'] = password
             return render_template('Forms/admin.html', adminName = adminOfApplication.get_name().upper(),allUsers = allUsers)
         
-        for user in allUsers: 
-            if user.get_email() == email and user.get_password() == password:
-                session['name'] = user.get_name()
-                session['email'] = email
-                session['password'] = password
-                session['appPassword'] = user.get_appPassword()
-                user.set_active_online()
-                return render_template("Forms/userPage.html",user = user)
-      
+        sqlite_connection = sqlite3.connect('MAIL_DB.db')
+        select_query = """SELECT PASSWORD, EMAIL, NAME FROM USER WHERE PASSWORD = ? AND EMAIL = ?;"""
+        users_records = sqlite_connection.execute(select_query, (password, email)).fetchall()
+        
+        if len(users_records) == 0:
+            return "<h1>The User does not exist</h1>"
+        user_name = ""
+        for user in users_records:
+            user_name = user[2] 
+        session['email'] = email
+        session['password'] = password
+        update_query = """UPDATE USER SET ACTIVE = 1 WHERE PASSWORD = ?
+                          AND EMAIL = ?;"""
+        update_query_data = (password, email)
+        sqlite_connection.execute(update_query, update_query_data)
+        return render_template("Forms/userPage.html",user_name = user_name)
+
 @forms_bp.route('/ValidationRegistration',methods = ['POST']) #Creating User
 def Validation():
     if request.method == 'POST':
 
         name = request.form['name']
         password = request.form['password']
-        appPassword = request.form['appPassword']
         email = request.form['email']
         gender = request.form['gender']
         dateOfBirth = request.form['dateOfBirth']
@@ -52,13 +60,21 @@ def Validation():
         contact = request.form['contact']
 
         userObject = user(name,email,password,gender,dateOfBirth,city,country,contact)
-        userObject.set_appPassword(appPassword)
         allUsers.append(userObject)
+
+        sqlite_connection = sqlite3.connect('Mail_DB.db')
+
+        data_query = """INSERT INTO USER (NAME, EMAIL, PASSWORD, GENDER, DATE_OF_BIRTH, CITY, COUNTRY,
+                         CONTACT, ACCOUNT_CREATION_DATE) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?); """
+        user_data = (name, email, password, gender, dateOfBirth, city, country, contact, userObject.get_account_creation_date())
+        sqlite_connection.execute(data_query, user_data)
+        sqlite_connection.commit()
+        sqlite_connection.close()
+        
+        
         session['name'] = name
-        session['email'] == email
-        session['password'] == password
-        session['appPassword'] == appPassword
+        session['email'] = email
+        session['password'] = password
         return render_template("Forms/userPage.html",user = userObject)
     else:
-        return '<h1>Failed</h1>'
-
+        return '<h1>Failed</h1>'     
