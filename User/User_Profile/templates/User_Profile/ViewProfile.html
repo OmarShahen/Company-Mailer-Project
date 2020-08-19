@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{{user.get_name()}}</title>
+        <title>{{user['NAME']}}</title>
         <link rel = "stylesheet" href = "{{url_for('static', filename = 'css/basic_layout.css')}}">
     </head>
     <body>
@@ -22,13 +22,15 @@
             </ul>
         </div>
         <table>
-            <tr><td>Name: </td><td>{{user.get_name()}}</td></tr>
-            <tr><td>Email: </td><td>{{user.get_email()}}</td></tr>
-            <tr><td>Gender: </td><td>{{user.get_gender()}}</td></tr>
-            <tr><td>Date of Birth: </td><td>{{user.get_dateOfBirth()}}</td></tr>
-            <tr><td>City: </td><td>{{user.get_city()}}</td></tr>
-            <tr><td>Country: </td><td>{{user.get_country()}}</td></tr>
-            <tr><td>Contact: </td><td>{{user.get_contact()}}</td></tr>
+            <tr><td>ID: </td><td>{{user['ID']}}</td></tr>
+            <tr><td>Name: </td><td>{{user['NAME']}}</td></tr>
+            <tr><td>Email: </td><td>{{user['EMAIL']}}</td></tr>
+            <tr><td>Gender: </td><td>{{user['GENDER']}}</td></tr>
+            <tr><td>Date of Birth: </td><td>{{user['DATE_OF_BIRTH']}}</td></tr>
+            <tr><td>City: </td><td>{{user['CITY']}}</td></tr>
+            <tr><td>Country: </td><td>{{user['COUNTRY']}}</td></tr>
+            <tr><td>Contact: </td><td>{{user['CONTACT']}}</td></tr>
+            <tr><td>Account creation date: </td><td>{{user['ACCOUNT_CREATION_DATE']}}</td></tr>
         </table>
     </body>
 </html>
