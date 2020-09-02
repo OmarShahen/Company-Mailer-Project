@@ -18,23 +18,39 @@
             <li><a href = '/EditProfileForm'>Edit Profile</a></li>
             <li><a href = '/allUsers'>View All Users</a>
             <li><a href = '/logout'>Logout</a></li>
+            <li><a href = '/delete-account'>Delete Account</a></li>
             <li>Contact US</li>
         </ul>
     </div>
     <h4>Welcome {{userName}}</h4>
     <div>
         <h4>Compose Message</h4>
-        <form action = "http://localhost:5000/sending_mail" method="POST" enctype="multipart/form-data">
+        <form action = "http://localhost:5000/sending-mail" method="POST" enctype="multipart/form-data">
         To: <input type = 'email' name = "reciever" placeholder="reciever"><br>
         Subject: <input type = 'text' name = 'subject' placeholder="subject"><br><br>
         Message<br>
-        <textarea name = 'mailInfo' cols = '50' rows = '10'>
-        </textarea><br>
-        <p>Attach a File: <input type = "file" name = "user_file"></p>
+        <textarea name = 'mailInfo' cols = '50' rows = '10'></textarea><br>
+        <p>Attach a File: <input type = "file" name = "user_files" multiple></p>
         <input type = 'submit' value = 'send'>
+        <button onclick = "send_to_server()">With AJAX and JSON</button>
         </form>
     </div>
     <p>Do any kind of operation related to Mail Services such as compose email,<br>
         inbox.And if you have any Query just contact us.by clicking the above links.</p>
+
+        <script>
+            function send_to_server(){
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function()
+            {
+                if(this.readyState == 200 && this.status == 4)
+                {
+                    console.log(this.responseText);
+                }
+            }
+            xmlhttp.open("GET", "/sending-mail")
+            }
+
+        </script>
     </body>
 </html>

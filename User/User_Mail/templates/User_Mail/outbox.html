@@ -4,6 +4,11 @@
         <title>
             Outbox
         </title>
+
+        <link rel = "stylesheet" href = "{{url_for('static', filename = 'css/mail_layout.css')}}">
+        <link rel = "stylesheet" href = "{{url_for('static', filename = 'css/basic_layout.css')}}">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+
     </head>
 
     <body>
@@ -21,43 +26,48 @@
                 <li><a href = '/EditProfileForm'>Edit Profile</a></li>
                 <li><a href = '/allUsers'>View All Users</a>
                 <li><a href = '/logout'>Logout</a></li>
+                <li><a href = '/delete-account'>Delete Account</a></li>
                 <li>Contact US</li>
             </ul>
         </div>
-        <ul>
-            {%for mail in outbox_mails:%}
-            <li>
-                <div id = "mailBody">
+        <div>
+            <ul>
+                {%for mail in outbox_mails%}
+                <li>
                     <table>
                         <tr>
-                            <td>
-                                <label for = "mail_sender">From: </label>
-                            </td>
-                            <td>
-                                <input type = "text" value = "{{mail['sender_mail']}}" size="50" readonly>
-                            </td>
+                            <td>To: </td>
+                            <td><input type = "text" value = "{{mail['receiver_mail']}}" readonly size = 50></td>
                         </tr>
                         <tr>
-                            <td>
-                                <label for = "mail_receiver">To: </label>
-                            </td>
-                            <td>
-                                <input type = "text" value = "{{mail['receiver_mail']}}" size = "50" readonly>
-                            </td>
-                            <tr>
-                                <td>
-                                    <label for = "mail_subject">Subject: </label>
-                                </td>
-                                <td>
-                                    <input type = "text" value = "{{mail['subject']}}" size = "50" readonly>
-                                </td>
-                            </tr>
+                            
+                            <td>Subject: </td>
+                            <td><input type = "text" value = "{{mail['mail_subject']}}" readonly size = 50></td> 
                         </tr>
-                    </table>
-                </div>
-            </li>
-            {%endfor%}
-        </ul>
+                        <tr>
+                            {%if mail['mail_attachments']%}
+                                <table>
+                                    {%for file in mail['mail_attachments']%}
+                                        
+                                    <tr>
+                                        <td>
+                                            {%if ".pdf" in file[0]%}
+                                                <img src = "{{url_for('static', filename = 'images/pdf_icon.jpg')}}" width = "80px" height = "80px" alt = "{{file[0]}}"> {{file[0]}}
+                                            {%else%}
+                                            <img src = "{{url_for('static', filename = 'images/excel_icon.jpg')}}" width = "80px" height = "80px" alt = "{{file[0]}}"> {{file[0]}}
 
+                                            {%endif%}
+                                        </td>
+                                    </tr>
+                                    {%endfor%}
+                                </table>
+                            {%endif%}
+                        </tr>
+
+                    </table>
+                </li>
+                {%endfor%}
+            </ul>
+        </div>   
     </body>
 </html>
