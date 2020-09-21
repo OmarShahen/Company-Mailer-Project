@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html lang = 'en'>
     <head>
-        <title>OUTBOX</title>
-        <meta charset = "UTF-8">
-        <meta name = "viewport" content = "width = device-width, initial-scale = 1">
+        <title>User</title>
+
+        <meta charset = 'UTF-8'>
+        <meta name = 'viewport' content = 'width = device-width, initial-scale = 1'>
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
@@ -16,16 +17,14 @@
         <!-- Latest compiled JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         
-        
     </head>
 <body>
-    <div class = "container-fluid">
-    <div class = "row bg-dark text-white">
+    <div class = 'container-fluid'> 
+    <div id = "headerBar">
         <h2>Mail Services</h2>
     </div>
+    <div id = "successMessage">
 
-    <div>
-        <h3>Outbox</h3>
     </div>
     <div>
         <ul class = "nav nav-justified bg-light">
@@ -64,25 +63,26 @@
             </li>
         </ul>
     </div>
-    <div>
-       <ul class = "list-group">
-           {% for mail in outbox_mails %}
-           <li class = "list-group-item">
-               <span class = "badge badge-primary">outbox</span>
-               <strong style = "margin-left: 20px;">{{mail['receiver_mail']}}</strong>
-               <span style = "margin-left: 20px;">{{mail['mail_subject']}}</span>
-               
-               <a href = "{{url_for('user_mail_bp.outbox_to_trash', mail_id = mail['mail_id'])}}"
-               class = "btn btn-primary float-right" style = "margin-left: 20px;">Trash</a>
-               <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}"
-               class = "btn btn-primary float-right">view mail</a>
-               <strong style = "margin-right: 100px;" class = "float-right">{{mail['mail_date']}}</strong>
-               
-           </li>
-           {% endfor %}
-       </ul>
+    <div style = 'margin-top:30px;'>
+<h4 class = 'text-primary'>Welcome {{user_name.upper()}}</h4>
+<p>Do any kind of operation related to Mail Services such as compose email,<br>
+    inbox.And if you have any Query just contact us.by clicking the above links.</p>
+    </div>
+</div>
+{%with messages = get_flashed_messages()%}
+    {%if messages%}
+        {%for message in messages%}
+            <script>
+                let successLoginMessage =  "<div class = 'alert alert-success alert-dismissible'>\
+                    <a href = '#' class = 'close' data-dismiss = 'alert'>&times;</a>\
+                    <strong>{{message}}</strong>!\
+                    </div>";
 
-    </div>
-    </div>
+                    document.getElementById("successMessage").innerHTML = successLoginMessage;
+                
+            </script>
+        {%endfor%}
+    {%endif%}
+{%endwith%}
 </body>
 </html>

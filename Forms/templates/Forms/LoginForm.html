@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <title>Login Page</title>
+
+        <meta charset = "UTF-8">
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1">
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <!-- Popper JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+        <!-- Latest compiled JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </head>
+<body>
+    
+    <div class = "container-fluid">
+        <div class = "row text-white bg-dark">
+            <h1>Welcome to Mail Services</h1>
+        </div>
+<div class = "row">
+    <div class = "col-4">
+
+    </div>
+    <div class = "card" style = "margin-top: 20px;">
+        <div class = "card-header">
+            <h4 class = "float-center">Mail Service</h4>
+        </div>
+        <div class = "card-body container-fluid">
+            <div id = "alertMessage">
+            </div>
+    <form action = "http://localhost:5000/ValidLogin" method = "POST" style = "margin: 50px;">
+
+        <div class = "form-group">
+                <label for = "user_email">Email:</label>
+                <input type = "email" name = "email" id = "user_email" class = "form-control" placeholder = "Enter Email..">
+        </div>
+        <div class = "form-group"></div>
+                <label for = "user_password">Password:</label>
+                <input type = "password" name = "password" id = "user_password" class = "form-control" placeholder = "Password">
+        </div>
+        <div class = "form-group form-check">
+            <label style = "margin-left: 20px;"class = "form-check-label">
+            <input type = "checkbox" class = "form-check-input">
+            Remeber me</label>
+        </div>
+        <div class = "form-group">
+                <input type = "submit" value = "Login" class = "btn btn-primary" style = "margin: 20px;">
+                <a href = "/RegisterationForm" class = "btn btn-primary" style = "margin: 20px;">SignUP!</a> 
+        </div>
+        </form>
+        </div>
+    </div>
+</div>
+    <div class = "col-4">
+
+    </div>
+</div> 
+{%with messages = get_flashed_messages()%}
+        {%if messages%}
+            {%for message in messages%}
+                <script>
+                    let alertMessage = "<div class = 'alert alert-danger alert-dismissible'>\
+                    <a href = '#' class = 'close' data-dismiss = 'alert'>&times;</a>\
+                    <strong>Error!!! </strong>{{message}}\
+                    </div>";
+                    document.getElementById("alertMessage").innerHTML = alertMessage;
+                </script>
+            {%endfor%}
+        {%endif%}
+    {%endwith%}
+</body>
+</html>

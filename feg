@@ -1,0 +1,12 @@
+[33mc5b7fc6[m[33m ([m[1;36mHEAD -> [m[1;32madd_API[m[33m)[m finished_view_profile_connect_DB
+[33m5d2b77c[m ADDING_DB_TO_VIEWPROFILE
+[33m437aca0[m[33m ([m[1;31morigin/new_organized_structure_test[m[33m, [m[1;32mnew_organized_structure_test[m[33m, [m[1;32mmaster[m[33m)[m finished the new Architecture with blueprints
+[33mcfe8298[m[33m ([m[1;32montrack[m[33m)[m added outbox and id's for mails
+[33m4e70b07[m[33m ([m[1;31morigin/ontrack[m[33m)[m The user can view all other users
+[33mbf2bf97[m[33m ([m[1;31morigin/master[m[33m)[m User can View and Edit his profile
+[33m25c9b3b[m Can send attachments
+[33md1c2721[m The Application is able to send plain text Emails
+[33me66e823[m Finished Activity Info
+[33m83a51e1[m Making Sessions for clients
+[33m1fb6cc2[m Finished Registration Form
+[33mf5f3718[m LoginForm and Flask Created

@@ -1,56 +1,91 @@
-<html>
+<!DOCTYPE html>
+<html lang = 'en'>
     <head>
-        <title>compose Email</title>
-        <link rel = "stylesheet" href = "{{url_for('static', filename = 'css/basic_layout.css')}}">
+        <title>INBOX</title>
+        
+
+        <meta charset = 'UTF-8'>
+        <meta name = 'viewport' content = 'width = device-width, initial-scale = 1'>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <!-- Popper JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+        <!-- Latest compiled JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        
+
 
     </head>
-    <div id = "headerBar">
-        <h2>Mail Services</h2>
-    </div>
-    <div id = "navBar">
-        <ul>
-            <li><a href = '/'>HomePage</a></li>
-            <li><a href = '/composeEmail'>Compose Email</a></li>
-            <li><a href = '/inbox'>Inbox</a></li>
-            <li><a href = '/trash'>Trash</a></li>
-            <li><a href = '/outbox'>Outbox</a></li>
-            <li><a href = '/View profile'>View Profile</a></li>
-            <li><a href = '/EditProfileForm'>Edit Profile</a></li>
-            <li><a href = '/allUsers'>View All Users</a>
-            <li><a href = '/logout'>Logout</a></li>
-            <li><a href = '/delete-account'>Delete Account</a></li>
-            <li>Contact US</li>
+<body>
+
+    <div class = "container-fluid">
+        <div class = "row text-white bg-dark">
+            <h1>Mail Services</h1>
+        </div>
+        <div style = 'margin-bottom:30px;'>
+            <ul class = "nav nav-justified bg-light">
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('forms_bp.login_form_page')}}" class = 'nav-link'>HomePage</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_mail_bp.see_inbox')}}" class = 'nav-link'>Inbox</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_mail_bp.trash')}}" class = 'nav-link'>Trash</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_mail_bp.see_outbox')}}" class = 'nav-link'>Outbox</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_profile_bp.view_profile')}}" class = 'nav-link'>View Profile</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_profile_bp.edit_profile_form')}}" class = 'nav-link'>Edit Profile</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_profile_bp.view_all_users')}}" class = 'nav-link'>View All Users</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_profile_bp.logout')}}" class = 'nav-link'>Logout</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_profile_bp.delete_account')}}" class = 'nav-link'>Delete Account</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = '#' class = 'nav-link'>Contact US</a>
+                </li>
         </ul>
     </div>
-    <h4>Welcome {{userName}}</h4>
     <div>
         <h4>Compose Message</h4>
         <form action = "http://localhost:5000/sending-mail" method="POST" enctype="multipart/form-data">
-        To: <input type = 'email' name = "reciever" placeholder="reciever"><br>
-        Subject: <input type = 'text' name = 'subject' placeholder="subject"><br><br>
+        To: <input type = 'email' name = "reciever" placeholder="reciever" value = "{{to}}" class = "form-control"><br>
+        Subject: <input type = 'text' name = 'subject' placeholder="subject" class = "form-control" autocomplete = "off"><br><br>
         Message<br>
-        <textarea name = 'mailInfo' cols = '50' rows = '10'></textarea><br>
-        <p>Attach a File: <input type = "file" name = "user_files" multiple></p>
-        <input type = 'submit' value = 'send'>
-        <button onclick = "send_to_server()">With AJAX and JSON</button>
+        <textarea name = 'mailInfo' cols = '50' rows = '10'  class = "form-control"></textarea><br>
+        <div class = "custom-file" style = "margin-bottom: 20px;">
+        <input type = "file" name = "user_files" class = "custom-file-input" id = "custom_file" multiple>
+        <label class = "custom-file-label" for = "custom_file">Choose File</label>
+        </div>
+        <input type = 'submit' value = 'send' class = "btn btn-primary" style = "margin-bottom: 20px;">
         </form>
     </div>
     <p>Do any kind of operation related to Mail Services such as compose email,<br>
         inbox.And if you have any Query just contact us.by clicking the above links.</p>
-
-        <script>
-            function send_to_server(){
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function()
-            {
-                if(this.readyState == 200 && this.status == 4)
-                {
-                    console.log(this.responseText);
-                }
-            }
-            xmlhttp.open("GET", "/sending-mail")
-            }
-
-        </script>
     </body>
+    <script>
+        $(".custom-file-input").on("change", function(){
+            var file_name = $(this).val().split("\\").pop();
+        $(this).siblings(".custom-file-label").addClass("selected").html(file_name);
+        });
+        
+    </script>
 </html>

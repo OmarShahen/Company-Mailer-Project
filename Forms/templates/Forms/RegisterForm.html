@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <title>Register Form</title>
+
+        <meta charset = "UTF-8">
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1">
+
+         <!-- Latest compiled and minified CSS -->
+         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+         <!-- jQuery library -->
+         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+ 
+         <!-- Popper JS -->
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+ 
+         <!-- Latest compiled JavaScript -->
+         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    </head>
+<body>
+    <div class = "container-fluid">
+        <div class = "row">
+            <div class = "col-4">
+
+            </div>
+        <div class = "card">
+            <div class = "card-header" style = "margin-top: 20px;">
+                <h4>Mail Services</h4>
+            </div>
+            <div class = "card-body container-fluid" style = "margin: 20px;">
+
+    <form action = "http://localhost:5000/ValidationRegistration" method = "POST">
+        
+                <div class = "row" style = "margin: 20px;">
+                    <label for = "user_name">Name</label>
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                    <input type = "text" name = "name" id = "user_name" placeholder = "Name" class = "form-control">
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <label for = "user_email">E-mail</label>
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <input type = "email" name = "email" id = "user_email" placeholder = "Email" class = "form-control">
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <label for = "user_password">Password</label>
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <input type = "password" name = "password" id = "user_password" placeholder = "Password" class = "form-control">
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <label>Gender</label>
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <input type = "radio" name = "gender" value = "Male">Male
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <input type = "radio" name = "gender" value = "Female">Female
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <label for = "user_birth">Date Of Birth</label>
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <input type = "date" name = "dateOfBirth" id = "user_birth" placeholder = "Date Of Birth" class = "form-control">
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <label for = "user_city">City</label>
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <input type = "text" name = "city" id = "user_city" placeholder = "City" class = "form-control">
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <label for = "user_country">Country</label>
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <input type = "text" name = "country" id = "user_country" placeholder = "Country" class = "form-control">
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <label for = "user_contact">Contact</label>
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                <input type = "text" name = "contact" id = "user_contact" placeholder = "Contact" class = "form-control">
+                </div>
+            
+                <input type = "submit" value = "Submit" class = "btn btn-primary">
+
+        </form>
+        </div>
+        </div>
+        </div>
+        <div class = "col-4">
+
+        </div>
+        </div>
+</body>
+</html>

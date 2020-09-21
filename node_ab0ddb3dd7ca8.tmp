@@ -1,0 +1,34 @@
+
+def name_validator(user_name):
+    non_name = "1234567890-=`!@#$%^&*()_+[]\{\}|\\/<>,.;:?"
+
+    for i in user_name:
+        for j in non_name:
+            if i == j:
+                print("ERROR because it contains ", j)
+                return False
+    return True
+    
+def mail_validation(user_mail):
+    for i in range(-11,-1 ):
+        print(user_mail[i])
+    
+
+
+
+mail_validation("omar@gmail.com")
+while(True):
+    name = input("Enter name: ")
+    if name_validator(name):
+        print("This name is clean")
+    else:
+        print("error")
+
+
+
+
+
+
+
+
+

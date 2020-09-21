@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <title>Trash</title>
+        <meta charset = "UTF-8">
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1">
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <!-- Popper JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+        <!-- Latest compiled JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class = "container-fluid">
+            <div class = "row text-white bg-dark">
+                <h1>Mail Services</h1>
+            </div>
+            <div class = "row text-dark">
+                <h3>Trash</h3>
+            </div>
+            <div>
+                <ul class = "nav nav-justified bg-light">
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('forms_bp.login_form_page')}}" class = 'nav-link'>HomePage</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_mail_bp.see_inbox')}}" class = 'nav-link'>Inbox</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_mail_bp.trash')}}" class = 'nav-link'>Trash</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_mail_bp.see_outbox')}}" class = 'nav-link'>Outbox</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_profile_bp.view_profile')}}" class = 'nav-link'>View Profile</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_profile_bp.edit_profile_form')}}" class = 'nav-link'>Edit Profile</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_profile_bp.view_all_users')}}" class = 'nav-link'>View All Users</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_profile_bp.logout')}}" class = 'nav-link'>Logout</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_profile_bp.delete_account')}}" class = 'nav-link'>Delete Account</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = '#' class = 'nav-link'>Contact US</a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <ul class = "list-group list-group-flush">
+                    {% for mail in all_mail %}
+                        <li class = "list-group-item">
+                            <span class = "badge badge-warning text-white">Trash</span>
+                            <strong style = "margin-left: 20px;">{{mail["sender_email"]}}</strong>
+                            <span style = "margin-left: 20px;">{{mail["mail_subject"]}}</span>
+                            <strong style = "margin: 20px;">{{mail["mail_date"]}}</strong>
+                            <a href = "{{url_for('user_mail_bp.trash')}}" class = "btn btn-primary float-right">view mail</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </body>
+</html>

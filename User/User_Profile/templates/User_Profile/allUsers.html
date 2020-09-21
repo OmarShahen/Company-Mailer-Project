@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang = 'en'>
+<html lang = "en">
     <head>
-        <title>INBOX</title>
-        
-
-        <meta charset = 'UTF-8'>
-        <meta name = 'viewport' content = 'width = device-width, initial-scale = 1'>
+        <title>Edit Profile</title>
+        <meta charset = "UTF-8">
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1">
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
@@ -17,21 +15,26 @@
 
         <!-- Latest compiled JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-        
 
 
+        <style>
+            .card{
+                margin-top: 20px;
+            }
+            .card-body{
+                margin: 10px;
+            }
+            .form-control{
+                margin: 5px;
+            }
+        </style>
     </head>
-<body>
-
-    <div class = "container-fluid">
-        <div class = "row text-white bg-dark">
-            <h1>Mail Services</h1>
+    <body>
+        <div class = "container-fluid">
+        <div class = "row bg-dark text-white">
+            <h2>Mail Services</h2>
         </div>
-        <div class = "row">
-            <h2>Inbox</h2>
-
-        </div>
-        <div style = 'margin-bottom:30px;'>
+        <div style = "margin-bottom: 20px;">
             <ul class = "nav nav-justified bg-light">
                 <li class = 'nav-item'>
                     <a href = "{{url_for('forms_bp.login_form_page')}}" class = 'nav-link'>HomePage</a>
@@ -66,32 +69,49 @@
                 <li class = 'nav-item'>
                     <a href = '#' class = 'nav-link'>Contact US</a>
                 </li>
-        </ul>
-    </div>
-      
-    <div style = "margin-top: 50px;">
+            </ul>
+        </div>
+        <input type = "text" class = "form-control" id = "user_input" placeholder = "Search Email..." style = "margin-top: 20px;margin-bottom: 20px;">
+        <table class = "table table-striped">
+            <tr>
+                <th>ID</th>
+                <th>NAME</th>
+                <th>EMAIL</th>
+            </tr>
+            {%for user in allUsers:%}
+                <tr>
+                    <td id = "userID">{{user[0]}}</td>
+                    <td id = "userName">{{user[1]}}</td>
+                    <td id = "userMail"><a href = "{{url_for('user_mail_bp.compose_to_email', user_mail = user[2])}}">{{user[2]}}</a></td>
+                </tr>          
+            {%endfor%}
+        </table>
+        </div>
+    </body>
+    <script>
+
+        let inputField = document.getElementById("user_input");
+        inputField.addEventListener("keyup", filterNames);
+        function filterNames()
+        {
+            let allMail = document.querySelectorAll("#userMail");
+            let allids = document.querySelectorAll("#userName");
+            let allNames = document.querySelectorAll("#userID");
+
+            for(let i=0;i<allMail.length;i++)
+            {
+                if(allMail[i].getElementsByTagName("a")[0].innerHTML.toUpperCase().indexOf(inputField.value.toUpperCase()) > -1)
+                {
+                    allMail[i].style.display = '';
+                    allids[i].style.display = '';
+                    allNames[i].style.display = '';
+                }else{
+                    allMail[i].style.display = 'none';
+                    allids[i].style.display = 'none';
+                    allNames[i].style.display = 'none';
+                }
+            }
+        }
         
-       <ul class = "list-group list-group-flush">
-        {%for mail in inbox_mails%}
-           <li class = "list-group-item">
-               <p style = 'padding-bottom: 10px;'>
-                {% if mail['mail_seen']%}
-                <span class = 'badge badge-success' style = 'display:inline;'>inbox</span>
-                {% else %}
-                    <span class = 'badge badge-danger'>inbox</span>
-                {% endif %}
-                <strong style = "margin-left: 20px;"> {{mail['sender_mail']}}</strong>
-                <span style = 'margin-left: 50px;margin-right:50px;'>{{mail['mail_subject']}}</span> <span style = 'margin-left:20px;'>{{mail['mail_date']}}</span>
-                <a href = "{{url_for('user_mail_bp.inbox_to_trash', mail_id = mail['mail_id'])}}" class = "btn btn-primary float-right" style = "margin-left: 10px;">Trash</a>
-                <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}"
-                 class = "btn btn-primary float-right" style = "display:inline;">View mail</a>
-            
-                </p>
-           </li>
-           {%endfor%}
-       </ul>
-       <button class = "btn btn-primary">mom</button>
-       <button class = "btn btn-danger float-right" style = "float:right;">mom</button>
-    </div>
-</body>
-</html>
+    </script>
+    </html>
