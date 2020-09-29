@@ -116,7 +116,8 @@ def sending_email():
 
         user_files = request.files.getlist('user_files')
         if check_file_extension(user_files) == False:
-            return "not allowed extension"
+            flash('Not Allowed Extension', "danger")
+            return redirect(url_for('user_mail_bp.compose_email'))
 
         os.makedirs(current_app.config['USER_ATTACHMENTS'], exist_ok = True)
         for user_file in user_files:
@@ -131,6 +132,15 @@ def sending_email():
 
 
     return redirect(url_for('user_mail_bp.compose_email'))
+
+
+@user_mail_bp.route('/All-Users/pick-multiple-receivers')
+def add_multiple_receivers():
+    return redirect(url_for("user_profile_bp.view_all_users"))
+
+
+
+
 
 @user_mail_bp.route("/outbox")
 def see_outbox():
@@ -179,7 +189,7 @@ def see_inbox():
         mail_data['receiver_mail'] = get_user_email(mail[2])
         mail_data['mail_subject'] = mail[3]
         mail_data['mail_body'] = mail[4]
-        mail_data['mail_date'] = month_with_day(mail[5])
+        mail_data['mail_date'] = remove_milli_seconds(mail[5])
         mail_data['mail_seen'] = mail[6]
         inbox.append(mail_data)
         mail_data = {}
@@ -217,6 +227,7 @@ def view_mail(mail_id):
 @user_mail_bp.route("/download-file/<file_name>")
 def download_file(file_name):
 
+    print("in download")
     try:
         return send_from_directory(current_app.config['USER_ATTACHMENTS'], filename = secure_filename(file_name), as_attachment = True)
     

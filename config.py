@@ -7,6 +7,7 @@ class config:
     USER_ATTACHMENTS = 'E:\\Mailer\\static\\attachments'
     ALLOWED_EXTENSIONS = ['PDF', 'XLSX']
     ATTACHMENT_PHOTOS = 'static/images/'
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
 class prod_config(config):
     FLASK_ENV = 'production'

@@ -28,9 +28,7 @@
     </div>
     <div>
         <ul class = "nav nav-justified bg-light">
-            <li class = 'nav-item'>
-                <a href = "{{url_for('forms_bp.login_form_page')}}" class = 'nav-link'>HomePage</a>
-            </li>
+           
             <li class = 'nav-item'>
                 <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
             </li>
@@ -42,6 +40,9 @@
             </li>
             <li class = 'nav-item'>
                 <a href = "{{url_for('user_mail_bp.see_outbox')}}" class = 'nav-link'>Outbox</a>
+            </li>
+            <li class = 'nav-item'>
+                <a href = "{{url_for('user_mail_bp.see_all_mail')}}" class = 'nav-link'>All Mail</a>
             </li>
             <li class = 'nav-item'>
                 <a href = "{{url_for('user_profile_bp.view_profile')}}" class = 'nav-link'>View Profile</a>
@@ -73,12 +74,17 @@
     {%if messages%}
         {%for message in messages%}
             <script>
+                function removeAlertMessage()
+                {
+                    document.getElementById("successMessage").style.display = 'none';
+                }
                 let successLoginMessage =  "<div class = 'alert alert-success alert-dismissible'>\
                     <a href = '#' class = 'close' data-dismiss = 'alert'>&times;</a>\
                     <strong>{{message}}</strong>!\
                     </div>";
 
                     document.getElementById("successMessage").innerHTML = successLoginMessage;
+                    setTimeout(removeAlertMessage, 3000);
                 
             </script>
         {%endfor%}

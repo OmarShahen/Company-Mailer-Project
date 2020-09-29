@@ -1,12 +1,37 @@
-from flask import Blueprint, render_template, session, request, redirect, url_for, flash
+from flask import Blueprint, render_template, session, request, redirect, url_for, flash, jsonify
 from admin import admin
 from creating_users import allUsers, adminOfApplication
 import sqlite3
 import datetime
+from flask_bcrypt import Bcrypt
+
+
 
 forms_bp = Blueprint('forms_bp', __name__, template_folder = 'templates', static_folder = 'static')
 
+bcrypt = Bcrypt()
 
+def check_user_exist(user_email, user_password):
+    sqlite_connection = sqlite3.connect('MAIL_DB.db')
+    select_query = """SELECT user_email, user_password, user_name FROM user WHERE user_email = ?;"""
+    user_record = sqlite_connection.execute(select_query, (user_email,)).fetchall()
+    if len(user_record) == 0:
+        return False
+    for data in user_record:
+        if bcrypt.check_password_hash(data[1], user_password):
+            return True
+    return False
+
+def get_user_name(user_email):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_query = """SELECT user_name FROM user WHERE user_email = ?;"""
+    user_data = sqlite_connection.execute(select_query, (user_email,))
+    user_name = ""
+    for data in user_data:
+        user_name =  data[0]
+        break
+    sqlite_connection.close()
+    return user_name
 
 
 @forms_bp.route('/')
@@ -19,7 +44,7 @@ def registerForm():
     return render_template('Forms/RegisterForm.html')
 
 
-@forms_bp.route('/ValidLogin', methods = ['POST']) #Check Validation
+@forms_bp.route('/ValidLogin', methods = ["POST"]) #Check Validation
 def valid_login():
     if request.method == 'POST':
 
@@ -27,37 +52,52 @@ def valid_login():
 
         email = request.form['email']
         password = request.form['password']
+
         if adminOfApplication.get_password() == password and adminOfApplication.get_email() == email:
             session['email'] = email
             session['password'] = password
             return render_template('Forms/admin.html', adminName = adminOfApplication.get_name().upper())
         
-        select_query = """SELECT user_password, user_email, user_name FROM user WHERE user_password = ? AND user_email = ?;"""
-        users_records = sqlite_connection.execute(select_query, (password, email)).fetchall()
-        
-        if len(users_records) == 0:
-            flash("This Account doesnot Exist")
+        if check_user_exist(email, password) == False:
+            flash("This Account doesnot Exist", "danger")
             return redirect(url_for("forms_bp.login_form_page"))
+
+        select_query = """SELECT user_password, user_email, user_name FROM user WHERE user_email = ?;"""
+        user_record = sqlite_connection.execute(select_query, (email,))
         user_name = ""
-        for user in users_records:
+        for user in user_record:
+            password = user[0]
             user_name = user[2] 
         session['email'] = email
-        session['password'] = password
-        update_query = """UPDATE user SET user_active = ? WHERE user_password = ?
-                          AND user_email = ?;"""
-        update_query_data = (1, password, email)
+        update_query = """UPDATE user SET user_active = ? WHERE user_email = ?;"""
+        update_query_data = (1, email)
         sqlite_connection.execute(update_query, update_query_data)
         sqlite_connection.commit()
-        success_message = f"Welcome Back {user_name}"
+        return redirect(url_for("user_mail_bp.see_inbox"))
+
+@forms_bp.route('/validLogin/<user_email>/<user_password>', methods = ["POST"])
+def auto_redirect(user_email, user_password):
+    print(user_email)
+    print(user_password)
+    if check_user_exist(user_email, user_password):
+        session['email'] = user_email
+        session['password'] = user_password
+        sqlite_connection = sqlite3.connect("MAIL_DB.db")
+        update_query = """UPDATE user SET user_active = ?;"""
+        sqlite_connection.execute(update_query, (1,))
+        sqlite_connection.commit()
+        sqlite_connection.close()
+        success_message = f"Welcome Back {get_user_name(user_email)}"
         flash(success_message)
-        return render_template("Forms/userPage.html",user_name = user_name)
+        return render_template("Forms/userPage.html",user_name = get_user_name(user_email))
+
 
 @forms_bp.route('/ValidationRegistration',methods = ['POST']) #Creating User
 def Validation():
     if request.method == 'POST':
 
         name = request.form['name']
-        password = request.form['password']
+        password = bcrypt.generate_password_hash(request.form['password']).decode("UTF-8")
         email = request.form['email']
         gender = request.form['gender']
         date_of_birth = request.form['dateOfBirth']
@@ -93,6 +133,7 @@ def Validation():
         session['name'] = name
         session['email'] = email
         session['password'] = password
-        return render_template('Forms/userPage.html', user_name = name)
+        return redirect(url_for("user_mail_bp.see_inbox"))
     else:
         return '<h1>Failed</h1>'     
+

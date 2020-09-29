@@ -22,11 +22,9 @@
             <div class = "row bg-dark text-white">
                 <h1>Mail Services</h1>
             </div>
-            <div style = 'margin-bottom:30px;'>
+            <div>
                 <ul class = "nav nav-justified bg-light">
-                    <li class = 'nav-item'>
-                        <a href = "{{url_for('forms_bp.login_form_page')}}" class = 'nav-link'>HomePage</a>
-                    </li>
+                    
                     <li class = 'nav-item'>
                         <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
                     </li>
@@ -38,6 +36,9 @@
                     </li>
                     <li class = 'nav-item'>
                         <a href = "{{url_for('user_mail_bp.see_outbox')}}" class = 'nav-link'>Outbox</a>
+                    </li>
+                    <li class = 'nav-item'>
+                        <a href = "{{url_for('user_mail_bp.see_all_mail')}}" class = 'nav-link'>All Mail</a>
                     </li>
                     <li class = 'nav-item'>
                         <a href = "{{url_for('user_profile_bp.view_profile')}}" class = 'nav-link'>View Profile</a>
@@ -57,12 +58,28 @@
                     <li class = 'nav-item'>
                         <a href = '#' class = 'nav-link'>Contact US</a>
                     </li>
-            </ul>
-        </div>
-        <div class = "row">      
-            <div class = "col-4">
+                </ul>
             </div>
-            <div class = "jumbotron">
+        <div class = "row">      
+            <div class = "col-2">
+            </div>
+            <div class = "modal fade" role = "dialog" id = "myModal">
+                <div class = "modal-dialog modal-lg">
+                    <div class = "modal-content">
+                        <div class = "modal-header">
+                            <button class = "close" data-dismiss = "modal">&times;</button>
+                        </div>
+                        <div class = "modal-body">
+                            <strong>You can't view Excel files here, you have to download it.</strong>
+                        </div>
+                        <div class = "modal-footer">
+                            <button type = "button" class = "btn btn-primary" data-dismiss = "modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+                <div class = "jumbotron mt-4 mr-6" style = "width: 700px;">
                 <h5>Subject: {{mail['mail_subject']}}</h5>
                 <br>
                 <span>From: </span><strong style = "margin-left: 20px;">{{mail['sender_mail']}}</strong>
@@ -80,7 +97,7 @@
                             {%if ".pdf" in file:%}
                             <li class = "list-group-item">
 
-                            <a href = "{{url_for('user_mail_bp.view_file', file_name = file )}}">
+                            <a href = "{{url_for('user_mail_bp.view_file', file_name = file )}}" id = "pdfFile">
                                 <img src = "{{url_for('static', filename = 'images/pdf_icon.jpg')}}"
                                  width = '80px' height = '80px'>
                                 </a>
@@ -93,9 +110,9 @@
                              </li>
                         {%else%}
                         <li class = "list-group-item">
-                            <a href = "{{url_for('user_mail_bp.view_file', file_name = file)}}">
+                            <a href = "#">
                                 <img src = "{{url_for('static', filename = 'images/excel_icon.jpg')}}"
-                             width = '80px' height = '80px'></a>
+                             width = '80px' height = '80px' data-toggle = "modal" data-target = "#myModal"></a>
                              </li>
                              <li class = "list-group-item">
                                 {{file}}
@@ -110,7 +127,7 @@
                     {%endif%}
                             </ul>
                 </div>
-            <div class = "col-4">
+            <div class = "col-3">
             </div>      
         </div>
         

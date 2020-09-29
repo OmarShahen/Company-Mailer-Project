@@ -29,9 +29,7 @@
     </div>
     <div>
         <ul class = "nav nav-justified bg-light">
-            <li class = 'nav-item'>
-                <a href = "{{url_for('forms_bp.login_form_page')}}" class = 'nav-link'>HomePage</a>
-            </li>
+            
             <li class = 'nav-item'>
                 <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
             </li>
@@ -43,6 +41,9 @@
             </li>
             <li class = 'nav-item'>
                 <a href = "{{url_for('user_mail_bp.see_outbox')}}" class = 'nav-link'>Outbox</a>
+            </li>
+            <li class = 'nav-item'>
+                <a href = "{{url_for('user_mail_bp.see_all_mail')}}" class = 'nav-link'>All Mail</a>
             </li>
             <li class = 'nav-item'>
                 <a href = "{{url_for('user_profile_bp.view_profile')}}" class = 'nav-link'>View Profile</a>
@@ -65,7 +66,7 @@
         </ul>
     </div>
     <div>
-       <ul class = "list-group">
+       <ul class = "list-group list-group-flush">
            {% for mail in outbox_mails %}
            <li class = "list-group-item">
                <span class = "badge badge-primary">outbox</span>

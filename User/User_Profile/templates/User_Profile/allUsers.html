@@ -34,11 +34,9 @@
         <div class = "row bg-dark text-white">
             <h2>Mail Services</h2>
         </div>
-        <div style = "margin-bottom: 20px;">
+        <div>
             <ul class = "nav nav-justified bg-light">
-                <li class = 'nav-item'>
-                    <a href = "{{url_for('forms_bp.login_form_page')}}" class = 'nav-link'>HomePage</a>
-                </li>
+                
                 <li class = 'nav-item'>
                     <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
                 </li>
@@ -50,6 +48,9 @@
                 </li>
                 <li class = 'nav-item'>
                     <a href = "{{url_for('user_mail_bp.see_outbox')}}" class = 'nav-link'>Outbox</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_mail_bp.see_all_mail')}}" class = 'nav-link'>All Mail</a>
                 </li>
                 <li class = 'nav-item'>
                     <a href = "{{url_for('user_profile_bp.view_profile')}}" class = 'nav-link'>View Profile</a>
@@ -71,47 +72,119 @@
                 </li>
             </ul>
         </div>
-        <input type = "text" class = "form-control" id = "user_input" placeholder = "Search Email..." style = "margin-top: 20px;margin-bottom: 20px;">
+        <div class = "row">
+            <div class = "col-10">
+                <input type = "text" class = "form-control" id = "user_input" placeholder = "Search Email..." style = "margin-top: 20px;margin-bottom: 20px;">
+            </div>
+            <div class = "col-2">
+                <button class = "btn btn-primary" id = "addReceiversButton" style = "margin-top: 20px;">Add Recivers</button>
+            </div>
+        </div>
+
         <table class = "table table-striped">
+            <thead>
             <tr>
                 <th>ID</th>
                 <th>NAME</th>
                 <th>EMAIL</th>
             </tr>
+            </thead>
+            <tbody>
             {%for user in allUsers:%}
-                <tr>
+                <tr id = "notChose">
                     <td id = "userID">{{user[0]}}</td>
                     <td id = "userName">{{user[1]}}</td>
                     <td id = "userMail"><a href = "{{url_for('user_mail_bp.compose_to_email', user_mail = user[2])}}">{{user[2]}}</a></td>
                 </tr>          
             {%endfor%}
+            </tbody>
         </table>
+        <div class = "row" style = "height: 300px;">
+            <div class = "col">
+                <button class = "btn btn-primary" id = "selectAll" style = "display:none;">Select All</button>
+            </div>
+            <div class = "col">
+                <button class = "btn btn-primary" id = "done" style = "display: none;">Done</button>
+            </div>
+        </div>
         </div>
     </body>
     <script>
 
-        let inputField = document.getElementById("user_input");
-        inputField.addEventListener("keyup", filterNames);
-        function filterNames()
-        {
-            let allMail = document.querySelectorAll("#userMail");
-            let allids = document.querySelectorAll("#userName");
-            let allNames = document.querySelectorAll("#userID");
+        let allowSelection = false;
+        let receivers = [];
+        let selectAllClicked = false;
 
-            for(let i=0;i<allMail.length;i++)
+       document.getElementById("addReceiversButton").addEventListener("click", () => {
+           allowSelection = true;
+           document.getElementById("selectAll").style.display = "block";
+           document.getElementById("done").style.display = "block";
+
+        });
+
+        document.getElementById("selectAll").addEventListener("click", () => {
+
+            if(selectAllClicked)
             {
-                if(allMail[i].getElementsByTagName("a")[0].innerHTML.toUpperCase().indexOf(inputField.value.toUpperCase()) > -1)
+                let allUsers = document.querySelectorAll("#userMail");
+                for(let i=0;i<allUsers.length;i++)
                 {
-                    allMail[i].style.display = '';
-                    allids[i].style.display = '';
-                    allNames[i].style.display = '';
-                }else{
-                    allMail[i].style.display = 'none';
-                    allids[i].style.display = 'none';
-                    allNames[i].style.display = 'none';
+                    receivers.push(allUsers[i].firstChild.innerHTML);
                 }
+
+                let links = document.getElementsByTagName("a");
+                for(let i=0;i<links.length;i++)
+                {
+                    links[i].className = "text-white";
+                }
+                document.querySelector("tbody").className = "bg-primary text-white";
+                selectAllClicked = false;
+                document.getElementById("selectAll").innerHTML = "cancel";
+                
+            }else{
+                receivers = [];
+                document.getElementById("selectAll").innerHTML = "Select All";
+                selectAllClicked = true;
+                document.querySelector("tbody").className = "";
             }
-        }
-        
+
+
+
+        });
+
+        document.querySelector("tbody").addEventListener("click", (event) => {
+
+            if(allowSelection)
+            {
+                let tr = event.target.parentNode;
+                if(tr.id === "notChose")
+                {
+                    tr.id = "chose";
+                    tr.className = "bg-primary text-white";
+                    tr.childNodes[5].childNodes[0].className = "bg-primary text-white";
+                    receivers.push(tr.childNodes[5].childNodes[0].innerHTML);
+                }else{
+                    tr.id = "notChose";
+                    tr.className = "";
+                    let link = tr.childNodes[5].childNodes[0];
+                    link.className = "";
+                    for(let i=0;i<tr.childNodes.length;i++)
+                    {
+                        if(link.innerHTML == receivers[i])
+                        {
+                            receivers.splice(i,1);
+                        }
+                    }
+
+                }
+
+            }
+
+
+
+
+        })
+
+
     </script>
     </html>

@@ -22,16 +22,13 @@
 
     </head>
 <body>
-
     <div class = "container-fluid">
         <div class = "row text-white bg-dark">
             <h1>Mail Services</h1>
         </div>
-        <div style = 'margin-bottom:30px;'>
+        <div>
             <ul class = "nav nav-justified bg-light">
-                <li class = 'nav-item'>
-                    <a href = "{{url_for('forms_bp.login_form_page')}}" class = 'nav-link'>HomePage</a>
-                </li>
+                
                 <li class = 'nav-item'>
                     <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
                 </li>
@@ -43,6 +40,9 @@
                 </li>
                 <li class = 'nav-item'>
                     <a href = "{{url_for('user_mail_bp.see_outbox')}}" class = 'nav-link'>Outbox</a>
+                </li>
+                <li class = 'nav-item'>
+                    <a href = "{{url_for('user_mail_bp.see_all_mail')}}" class = 'nav-link'>All Mail</a>
                 </li>
                 <li class = 'nav-item'>
                     <a href = "{{url_for('user_profile_bp.view_profile')}}" class = 'nav-link'>View Profile</a>
@@ -62,30 +62,51 @@
                 <li class = 'nav-item'>
                     <a href = '#' class = 'nav-link'>Contact US</a>
                 </li>
-        </ul>
-    </div>
+            </ul>
+        </div>
     <div>
         <h4>Compose Message</h4>
         <form action = "http://localhost:5000/sending-mail" method="POST" enctype="multipart/form-data">
-        To: <input type = 'email' name = "reciever" placeholder="reciever" value = "{{to}}" class = "form-control"><br>
-        Subject: <input type = 'text' name = 'subject' placeholder="subject" class = "form-control" autocomplete = "off"><br><br>
-        Message<br>
-        <textarea name = 'mailInfo' cols = '50' rows = '10'  class = "form-control"></textarea><br>
-        <div class = "custom-file" style = "margin-bottom: 20px;">
-        <input type = "file" name = "user_files" class = "custom-file-input" id = "custom_file" multiple>
-        <label class = "custom-file-label" for = "custom_file">Choose File</label>
-        </div>
+            <div class = "form-group">
+                <label for = "receiverField">To: </label>
+                <input type = 'email' name = "reciever" id = "receiverField"placeholder="reciever..." value = "{{to}}" class = "form-control" required>
+            </div>
+            <div class = "form-group">
+            <label for = "subjectField">Subject: </label>
+            <input type = 'text' name = 'subject' id = "subjectField" placeholder="subject..." class = "form-control" autocomplete = "off" required><br><br>
+            </div>
+            <div class = "form-group">
+                <label for = "messageField">Message:</label>
+                <textarea name = 'mailInfo' id = "messageField"cols = '50' rows = '10'  class = "form-control"></textarea><br>
+            <div class = "form-group">
+                <label id = "errorMessage" class = "text-danger"></label>
+                <div class = "custom-file" style = "margin-bottom: 20px;">
+                <input type = "file" name = "user_files" class = "custom-file-input" id = "custom_file" multiple>
+                <label class = "custom-file-label" for = "custom_file">Choose File</label>
+                </div>
         <input type = 'submit' value = 'send' class = "btn btn-primary" style = "margin-bottom: 20px;">
         </form>
     </div>
-    <p>Do any kind of operation related to Mail Services such as compose email,<br>
-        inbox.And if you have any Query just contact us.by clicking the above links.</p>
+
+
+        {% with messages = get_flashed_messages(category_filter = ["danger"])%}
+            {% if messages %}
+                {% for message in messages%}
+                    <script>
+                            let message = "Error!!! {{message}}";
+                            document.getElementById("errorMessage").innerHTML = message;
+                            console.log("{{message}}");
+                    </script>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </body>
     <script>
         $(".custom-file-input").on("change", function(){
             var file_name = $(this).val().split("\\").pop();
         $(this).siblings(".custom-file-label").addClass("selected").html(file_name);
         });
+
         
     </script>
 </html>
