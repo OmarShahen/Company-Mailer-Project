@@ -69,7 +69,8 @@
         <form action = "http://localhost:5000/sending-mail" method="POST" enctype="multipart/form-data">
             <div class = "form-group">
                 <label for = "receiverField">To: </label>
-                <input type = 'email' name = "reciever" id = "receiverField"placeholder="reciever..." value = "{{to}}" class = "form-control" required>
+
+                <input type = 'mail' name = "recievers" id = "receiverField"placeholder="reciever..." value = "{%for i in to%}{{i}}{{' '}}{%endfor%}" class = "form-control" required>
             </div>
             <div class = "form-group">
             <label for = "subjectField">Subject: </label>
@@ -106,7 +107,14 @@
             var file_name = $(this).val().split("\\").pop();
         $(this).siblings(".custom-file-label").addClass("selected").html(file_name);
         });
-
         
+       document.onload = removeLastComma();
+        function removeLastComma()
+        {
+            let allReceivers = document.querySelector("#receiverField").value;
+            let cleanReceivers = allReceivers.slice(0, allReceivers.length-1);
+            document.querySelector("#receiverField").value = cleanReceivers;
+        }
+
     </script>
 </html>

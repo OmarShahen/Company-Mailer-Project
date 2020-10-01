@@ -21,9 +21,7 @@
             <div class = "row text-white bg-dark">
                 <h1>Mail Services</h1>
             </div>
-            <div class = "row text-dark">
-                <h3>Trash</h3>
-            </div>
+            
             <div>
                 <ul class = "nav nav-justified bg-light">
                     
@@ -62,15 +60,19 @@
                     </li>
                 </ul>
             </div>
+            <div class = "row text-dark">
+                <h3>Trash</h3>
+            </div>
             <div>
                 <ul class = "list-group list-group-flush">
                     {% for mail in all_mail %}
                         <li class = "list-group-item">
                             <span class = "badge badge-warning text-white">Trash</span>
-                            <strong style = "margin-left: 20px;">{{mail["sender_email"]}}</strong>
-                            <span style = "margin-left: 20px;">{{mail["mail_subject"]}}</span>
-                            <strong style = "margin: 20px;">{{mail["mail_date"]}}</strong>
+                            <strong style = "margin: 20px;">{{mail["sender_email"]}}</strong>
+                            <span style = "margin: 20px;">{{mail["mail_subject"]}}</span>
                             <a href = "{{url_for('user_mail_bp.trash')}}" class = "btn btn-primary float-right">view mail</a>
+                            <strong style = "margin-right: 50px;" class = "float-right">{{mail["mail_date"]}}</strong>
+
                         </li>
                     {% endfor %}
                 </ul>

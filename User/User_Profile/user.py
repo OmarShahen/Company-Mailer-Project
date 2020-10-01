@@ -68,7 +68,7 @@ def edit_profile():
     sqlite_connection.execute(user_update_query, user_update_query_data)
     sqlite_connection.commit()
     sqlite_connection.close()
-    flash("Edited Successfully!!!", "success")
+    flash("Successfully!!!", "success")
     return redirect(url_for("user_profile_bp.edit_profile_form"))
  
 
@@ -106,3 +106,9 @@ def delete_account():
     session.pop('email', None)
     session.pop('password', None)
     return "<h1>Your Account is Deleted successfully</h1>"
+
+
+
+
+
+    

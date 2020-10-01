@@ -29,14 +29,13 @@
             }
         </style>
     </head>
-    <body onload = "alertMessage()">
+    <body>
         <div class = "container-fluid">
         <div class = "row bg-dark text-white">
             <h2>Mail Services</h2>
         </div>
         <div>
-            <ul class = "nav nav-justified bg-light">
-               
+            <ul class = "nav nav-justified bg-light">           
                 <li class = 'nav-item'>
                     <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
                 </li>
@@ -72,9 +71,9 @@
                 </li>
             </ul>
         </div>
+        </div>
         <div class = "row">
         <div class = "col-4">
-
         </div>
         <div class = "card">
             <div class = "card-header">
@@ -88,7 +87,7 @@
                         <label for = "user_name">Name:</label> 
                     </td>
                     <td> 
-                        <input type = "text" name = "user_name" value = "{{user['NAME']}}" id = "user_name" class = "form-control">
+                        <input type = "text" name = "user_name" value = "{{user['NAME']}}" id = "user_name" class = "form-control" required>
                     </td>
                 </tr>
                 <tr>
@@ -96,7 +95,7 @@
                         <label for = "user_email">Email:</label> 
                     </td>
                         <td>
-                            <input type="email" name = "user_email" value = "{{user['EMAIL']}}" id = "user_email" class = "form-control">
+                            <input type="email" name = "user_email" value = "{{user['EMAIL']}}" id = "user_email" class = "form-control" required>
                         </td>
                 </tr>
                 <tr>
@@ -104,7 +103,7 @@
                         <label for = "user_birth">Date of Birth:</label> 
                     </td>
                         <td>
-                            <input type = "date" name = "user_birthDate" value = "{{user['DATE_OF_BIRTH']}}" id = "user_birth" class = "form-control">
+                            <input type = "date" name = "user_birthDate" value = "{{user['DATE_OF_BIRTH']}}" id = "user_birth" class = "form-control" required>
                         </td>
                     </tr>
                 <tr>
@@ -112,7 +111,7 @@
                         <label for = "user_city">City:</label>
                     </td>
                         <td>
-                            <input type = "text" name = "user_city" value = "{{user['CITY']}}" id = "user_city" class = "form-control">
+                            <input type = "text" name = "user_city" value = "{{user['CITY']}}" id = "user_city" class = "form-control" required>
                         </td>
                     </tr>
                 <tr>
@@ -120,7 +119,7 @@
                         <label for = "user_country">Country:</label> 
                     </td>
                         <td>
-                         <input type = "text" name = "user_country" value ="{{user['COUNTRY']}}" id = "user_country" class = "form-control">
+                         <input type = "text" name = "user_country" value ="{{user['COUNTRY']}}" id = "user_country" class = "form-control" required>
                         </td>
                     </tr>
                 <tr>
@@ -128,7 +127,7 @@
                         <label for = "user_contact">Contact:</label>
                     </td>
                         <td>
-                            <input type = "text" name = "user_contact" value ="{{user['CONTACT']}}" id = "user_contact" class = "form-control">
+                            <input type = "text" name = "user_contact" value ="{{user['CONTACT']}}" id = "user_contact" class = "form-control" required>
                         </td>
                     </tr>
                 <tr>
@@ -145,15 +144,11 @@
         </div>
         </div>
         </div>
-        {% with messages = get_flashed_messages()%}
+        {% with messages = get_flashed_messages(category_filter = ["success"])%}
             {% if messages %}
                 {% for message in messages%}
                         <script>
-                            function alertMessage()
-                            {
-                                alert("{{message}}");
-                            }
-                            
+                            alert("Edited "+"{{message}}");                               
                         </script>
                 {% endfor %}
             {% endif %}

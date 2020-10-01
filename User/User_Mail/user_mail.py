@@ -4,6 +4,7 @@ import sqlite3
 import os
 from datetime import datetime
 import validator
+import json
 
 def get_user_id(user_email):
     sqlite_connection = sqlite3.connect('MAIL_DB.db')
@@ -82,29 +83,34 @@ def compose_email():
 
 @user_mail_bp.route('/compose-mail/<user_mail>')
 def compose_to_email(user_mail):
-    return render_template('User_Mail/composeEmail.html', userName = session['email'], to = user_mail)
+    user = [user_mail]
+    return render_template('User_Mail/composeEmail.html', userName = session['email'], to = user)
 
-
+@user_mail_bp.route("/compose-mail/multiple-users", methods = ["GET"])
+def send_multi_users():
+    allReceiversMails = json.loads(request.args.get("allMail"))
+    return render_template("User_Mail/composeEmail.html", userName = session['email'], to = allReceiversMails)
 
 @user_mail_bp.route('/sending-mail', methods = ['POST', 'GET'])
 def sending_email():
 
     sender_mail = session['email']
-    receiver_mail = request.form['reciever']
+    receiver_mail = request.form['recievers']
+    all_receivers = receiver_mail.split(" ")
     mail_subject = request.form['subject']
     mail_body = request.form['mailInfo'].strip()
+    mail_date = datetime.now()
 
     sender_id = get_user_id(session['email'])
-    receiver_id = get_user_id(receiver_mail)
-
     sqlite_connection = sqlite3.connect('MAIL_DB.db')
-    sqlite_mail_query = """INSERT INTO mail (sender_id, receiver_id, mail_subject, mail_body, mail_date)
+    insert_mail_query = """INSERT INTO mail (sender_id, receiver_id, mail_subject, mail_body, mail_date)
                             VALUES(?, ?, ?, ?, ?);"""
-    sqlite_mail_query_data = (sender_id, receiver_id, mail_subject, mail_body, datetime.now())
-    sqlite_connection.execute(sqlite_mail_query, sqlite_mail_query_data)
+    for receiver in all_receivers:
+        insert_mail_query_data = (sender_id, get_user_id(receiver), mail_subject, mail_body, mail_date)
+        sqlite_connection.execute(insert_mail_query, insert_mail_query_data)
 
-    sqlite_select_query = """SELECT mail_id FROM mail WHERE sender_id = ? AND receiver_id = ? ORDER BY mail_id DESC; """
-    sqlite_select_query_data = (sender_id, receiver_id)
+    sqlite_select_query = """SELECT mail_id FROM mail WHERE sender_id = ? AND mail_date = ? ORDER BY mail_id DESC;"""
+    sqlite_select_query_data = (sender_id, mail_date)
     mail_ids = sqlite_connection.execute(sqlite_select_query, sqlite_select_query_data)
     target_mail_id = None
     for id in mail_ids:
@@ -123,9 +129,9 @@ def sending_email():
         for user_file in user_files:
             file_name = secure_filename(user_file.filename)
             user_file.save(os.path.join(current_app.config['USER_ATTACHMENTS'], file_name))
-            save_attachment_query = """INSERT INTO attachment(mail_id, sender_id, receiver_id, attachment_file)
-                                        VALUES(?, ?, ?, ?);"""
-            save_attachment_query_data = (target_mail_id, sender_id, receiver_id, user_file.filename)
+            save_attachment_query = """INSERT INTO attachment(mail_id, attachment_file)
+                                        VALUES(?, ?);"""
+            save_attachment_query_data = (target_mail_id, user_file.filename)
             sqlite_connection.execute(save_attachment_query, save_attachment_query_data)
     sqlite_connection.commit()
     sqlite_connection.close()
@@ -326,8 +332,3 @@ def all_mail_to_trash(mail_id, trash_identity):
     sqlite_connection.commit()
     sqlite_connection.close()
     return redirect(url_for("user_mail_bp.see_all_mail"))
-
-
-
-
-    

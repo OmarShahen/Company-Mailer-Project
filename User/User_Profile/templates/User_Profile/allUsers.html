@@ -74,7 +74,7 @@
         </div>
         <div class = "row">
             <div class = "col-10">
-                <input type = "text" class = "form-control" id = "user_input" placeholder = "Search Email..." style = "margin-top: 20px;margin-bottom: 20px;">
+                <input type = "text" class = "form-control" id = "userInput" placeholder = "Search Email..." style = "margin-top: 20px;margin-bottom: 20px;">
             </div>
             <div class = "col-2">
                 <button class = "btn btn-primary" id = "addReceiversButton" style = "margin-top: 20px;">Add Recivers</button>
@@ -91,100 +91,143 @@
             </thead>
             <tbody>
             {%for user in allUsers:%}
-                <tr id = "notChose">
+                <tr id = "row">
                     <td id = "userID">{{user[0]}}</td>
                     <td id = "userName">{{user[1]}}</td>
-                    <td id = "userMail"><a href = "{{url_for('user_mail_bp.compose_to_email', user_mail = user[2])}}">{{user[2]}}</a></td>
+                    <td><a id = "userMail" href = "{{url_for('user_mail_bp.compose_to_email', user_mail = user[2])}}">{{user[2]}}</a></td>
+                    <td><button class = "btn btn-primary btn-sm" id = "addBtns" style = "display: none;">Add</button></td>
                 </tr>          
             {%endfor%}
             </tbody>
         </table>
-        <div class = "row" style = "height: 300px;">
-            <div class = "col">
-                <button class = "btn btn-primary" id = "selectAll" style = "display:none;">Select All</button>
-            </div>
-            <div class = "col">
-                <button class = "btn btn-primary" id = "done" style = "display: none;">Done</button>
-            </div>
+        <div>
+        <table style = "height: 100px;">
+            <tr>
+                <td>
+                    <button class = "btn btn-primary" id = "selectAll" style = "display:none;">Select All</button>
+                </td>
+                <td>
+                    <button class = "btn btn-primary" id = "cancel" style = "display: none;">Cancel</button>
+                </td>
+                <td>
+                    <button class = "btn btn-primary" id = "cancelAll" style = "display: none;">Cancel All</button>
+                </td>
+                <td>
+                    <a class = "btn btn-primary" id = "done" style = "display: none;" href = "#">Done</a>
+                </td>
+
+                </tr>
+        </table>
         </div>
         </div>
     </body>
     <script>
 
-        let allowSelection = false;
         let receivers = [];
-        let selectAllClicked = false;
+        let allowSelection = false;
+        let allowAllSelection = true;
+        let allAddBtns = document.querySelectorAll("#addBtns");
+        let allMails = document.querySelectorAll("#userMail");
+        let searchBar = document.querySelector("#userInput");
+        let allTr = document.querySelectorAll("#row");
 
-       document.getElementById("addReceiversButton").addEventListener("click", () => {
-           allowSelection = true;
-           document.getElementById("selectAll").style.display = "block";
-           document.getElementById("done").style.display = "block";
 
-        });
+        document.querySelector("#addReceiversButton").addEventListener("click", showButtons);
+        function showButtons()
+        {
+            allowSelection = true;
+            receivers = [];
+            document.querySelector("#selectAll").style.display = "block";
+            document.querySelector("#done").style.display = "block";
+            document.querySelector("#cancel").style.display = "block";
+            document.querySelector("#cancelAll").style.display = "block";
+            for(let i=0;i<allAddBtns.length;i++)
+                allAddBtns[i].style.display = "block";
+    
 
-        document.getElementById("selectAll").addEventListener("click", () => {
+        }
 
-            if(selectAllClicked)
-            {
-                let allUsers = document.querySelectorAll("#userMail");
-                for(let i=0;i<allUsers.length;i++)
-                {
-                    receivers.push(allUsers[i].firstChild.innerHTML);
+        document.querySelector("#cancelAll").addEventListener("click", hideButtons);
+        function hideButtons()
+        {
+            allowSelection = false;
+            document.querySelector("#selectAll").style.display = "none";
+            document.querySelector("#done").style.display = "none";
+            document.querySelector("#cancel").style.display = "none";
+            document.querySelector("#cancelAll").style.display = "none";
+            console.log(receivers.toString());
+            for(let i=0;i<allAddBtns.length;i++)
+                allAddBtns[i].style.display = "none";
+        }
+
+
+        document.querySelector("#selectAll").addEventListener("click", selectAll);
+        function selectAll()
+        {
+            if(allowAllSelection){
+            let allMails = document.querySelectorAll("#userMail");
+            for(let i=0;i<allMails.length;i++){
+                receivers.push(allMails[i].innerHTML);
+                allAddBtns[i].innerHTML = "remove";
+                allAddBtns[i].className = "btn btn-danger btn-sm";
                 }
-
-                let links = document.getElementsByTagName("a");
-                for(let i=0;i<links.length;i++)
-                {
-                    links[i].className = "text-white";
-                }
-                document.querySelector("tbody").className = "bg-primary text-white";
-                selectAllClicked = false;
-                document.getElementById("selectAll").innerHTML = "cancel";
-                
+                allowAllSelection = false;
             }else{
-                receivers = [];
-                document.getElementById("selectAll").innerHTML = "Select All";
-                selectAllClicked = true;
-                document.querySelector("tbody").className = "";
+                allowAllSelection = true;
+            }
+        }
+
+        document.querySelector("#cancel").addEventListener("click", removeAllReceivers);
+        function removeAllReceivers()
+        {
+            receivers = [];
+            for(let i=0;i<allAddBtns.length;i++){
+                allAddBtns[i].className = "btn btn-primary btn-sm";
+                allAddBtns[i].innerHTML = "Add";
             }
 
-
-
-        });
-
-        document.querySelector("tbody").addEventListener("click", (event) => {
-
-            if(allowSelection)
-            {
-                let tr = event.target.parentNode;
-                if(tr.id === "notChose")
-                {
-                    tr.id = "chose";
-                    tr.className = "bg-primary text-white";
-                    tr.childNodes[5].childNodes[0].className = "bg-primary text-white";
-                    receivers.push(tr.childNodes[5].childNodes[0].innerHTML);
+        }
+    
+        for(let i=0;i<allAddBtns.length;i++)
+            allAddBtns[i].addEventListener("click", (event) => {
+                if(event.target.innerHTML == "Add"){
+                let userMail = event.target.parentNode.previousSibling.previousSibling.firstChild.innerHTML;
+                receivers.push(userMail);
+                event.target.className = "btn btn-danger btn-sm";
+                event.target.innerHTML = "remove";
                 }else{
-                    tr.id = "notChose";
-                    tr.className = "";
-                    let link = tr.childNodes[5].childNodes[0];
-                    link.className = "";
-                    for(let i=0;i<tr.childNodes.length;i++)
+                    let userMail = event.target.parentNode.previousSibling.previousSibling.firstChild.innerHTML;
+                    for(let i=0;i<receivers.length;i++)
                     {
-                        if(link.innerHTML == receivers[i])
+                        if(receivers[i] == userMail)
                         {
-                            receivers.splice(i,1);
+                            receivers.splice(i, 1);
                         }
                     }
-
+                    event.target.className = "btn btn-primary btn-sm";
+                    event.target.innerHTML = "Add";
                 }
+            });
 
+        
+        document.querySelector("#done").addEventListener("click", () => window.location = "{{url_for('user_mail_bp.send_multi_users')}}" + "?allMail=" + JSON.stringify(receivers));
+
+        searchBar.addEventListener("keyup", filterMails)
+        function filterMails()
+        {
+
+            for(let i=0;i<allTr.length;i++)
+            {
+                let email = allTr[i].childNodes[5].childNodes[0].innerHTML;
+                if(email.toUpperCase().indexOf(searchBar.value.toUpperCase()) > -1)
+                {
+                    allTr[i].style.display = '';
+                }else{
+                    allTr[i].style.display = "none";
+                }
             }
-
-
-
-
-        })
-
-
+        }
+           
+    
     </script>
     </html>
