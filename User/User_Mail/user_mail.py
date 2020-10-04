@@ -61,7 +61,6 @@ def check_file_extension(files):
         if '.' not in file.filename:
             return False
         splite_file = file.filename.split('.')
-        print(splite_file)
         if splite_file[1].upper() not in current_app.config['ALLOWED_EXTENSIONS']:
             return False
     return True
@@ -73,6 +72,23 @@ def month_with_day(full_date):
 def remove_milli_seconds(full_date):
     date = datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S.%f')
     return date.strftime('%Y-%m-%d %H:%M:%S')
+
+def sort_mails(all_mails):
+    counter = 0
+    while(counter < len(all_mails)):
+        i = 0
+        while(i < len(all_mails)-1):
+            if all_mails[i]["mail_id"] < all_mails[i+1]["mail_id"]:
+                temp = all_mails[i]
+                all_mails[i] = all_mails[i+1]
+                all_mails[i+1] = temp
+            i += 1
+        counter += 1
+    return all_mails
+
+
+    
+
 
 
 user_mail_bp = Blueprint('user_mail_bp', __name__, template_folder = 'templates', static_folder = 'static/user_mail')
@@ -103,39 +119,33 @@ def sending_email():
 
     sender_id = get_user_id(session['email'])
     sqlite_connection = sqlite3.connect('MAIL_DB.db')
-    insert_mail_query = """INSERT INTO mail (sender_id, receiver_id, mail_subject, mail_body, mail_date)
-                            VALUES(?, ?, ?, ?, ?);"""
+    insert_mail_query = """INSERT INTO mail (sender_id, receiver_id, mail_subject, mail_body, mail_date, multiple_receivers)
+                            VALUES(?, ?, ?, ?, ?, ?);"""
     for receiver in all_receivers:
-        insert_mail_query_data = (sender_id, get_user_id(receiver), mail_subject, mail_body, mail_date)
+        insert_mail_query_data = (sender_id, get_user_id(receiver), mail_subject, mail_body, mail_date, 1)
         sqlite_connection.execute(insert_mail_query, insert_mail_query_data)
 
-    sqlite_select_query = """SELECT mail_id FROM mail WHERE sender_id = ? AND mail_date = ? ORDER BY mail_id DESC;"""
-    sqlite_select_query_data = (sender_id, mail_date)
-    mail_ids = sqlite_connection.execute(sqlite_select_query, sqlite_select_query_data)
-    target_mail_id = None
-    for id in mail_ids:
-        target_mail_id = id[0]
-        break
-    user_files = None
-
-    if check_files_numbers(request.files.getlist('user_files')):
-
-        user_files = request.files.getlist('user_files')
-        if check_file_extension(user_files) == False:
+    uploaded_files = request.files.getlist("user_files")
+    if check_files_numbers(uploaded_files):
+        if check_file_extension(uploaded_files) == False:
             flash('Not Allowed Extension', "danger")
             return redirect(url_for('user_mail_bp.compose_email'))
 
         os.makedirs(current_app.config['USER_ATTACHMENTS'], exist_ok = True)
-        for user_file in user_files:
+        for user_file in uploaded_files:
             file_name = secure_filename(user_file.filename)
             user_file.save(os.path.join(current_app.config['USER_ATTACHMENTS'], file_name))
+
             save_attachment_query = """INSERT INTO attachment(mail_id, attachment_file)
-                                        VALUES(?, ?);"""
-            save_attachment_query_data = (target_mail_id, user_file.filename)
-            sqlite_connection.execute(save_attachment_query, save_attachment_query_data)
+                                       VALUES(?, ?);"""
+            sqlite_select_query = """SELECT mail_id FROM mail WHERE sender_id = ? AND mail_date = ?;"""
+            sqlite_select_query_data = (sender_id, mail_date)
+            mail_ids = sqlite_connection.execute(sqlite_select_query, sqlite_select_query_data)
+            for mail_id in mail_ids:
+                sqlite_connection.execute(save_attachment_query, (mail_id[0], user_file.filename))
+                
     sqlite_connection.commit()
     sqlite_connection.close()
-
 
     return redirect(url_for('user_mail_bp.compose_email'))
 
@@ -145,18 +155,18 @@ def add_multiple_receivers():
     return redirect(url_for("user_profile_bp.view_all_users"))
 
 
-
-
-
 @user_mail_bp.route("/outbox")
 def see_outbox():
+
+    #Single receivers mails extraction
     sqlite_connection = sqlite3.connect('MAIL_DB.db')
     sender_id = get_user_id(session['email'])
-    select_sender_query = """SELECT * FROM mail WHERE sender_id = ? AND sender_trashed = ? ORDER BY  mail_id DESC;"""
-    user_outbox = sqlite_connection.execute(select_sender_query, (sender_id, 0))
-    outbox = []
+    select_single_outbox = """SELECT * FROM mail WHERE sender_id = ? AND sender_trashed = ?
+                              AND multiple_receivers = ? ORDER BY  mail_id DESC;"""
+    db_single_outbox = sqlite_connection.execute(select_single_outbox, (sender_id, 0, 0))
+    single_outbox = []
     mail_data = {}
-    for mail in user_outbox:
+    for mail in db_single_outbox:
         mail_data['mail_id'] = mail[0]
         mail_data['sender_id'] = mail[1]
         mail_data['sender_mail'] = get_user_email(mail[1])
@@ -170,8 +180,38 @@ def see_outbox():
         if check_attachment_exist(mail[0]):
             mail_data['mail_attachments'] = get_attachments(mail[0])
 
-        outbox.append(mail_data)
+        single_outbox.append(mail_data)
         mail_data = {}
+
+    #Multiple receivers mails extraction
+    multiple_outbox = []
+    select_distinct_mail_dates = """SELECT DISTINCT mail_date FROM mail WHERE multiple_receivers = 1;"""
+    db_distinct_dates = sqlite_connection.execute(select_distinct_mail_dates)
+    distinct_mail_dates = []
+    for mail_date in db_distinct_dates:
+        distinct_mail_dates.append(mail_date[0])
+
+    for mail_date in distinct_mail_dates:
+        select_multi_receivers_mail_query = """SELECT * FROM mail WHERE multiple_receivers = ? AND mail_date = ?;"""
+        db_mail_output = sqlite_connection.execute(select_multi_receivers_mail_query, (1, mail_date))
+        mail_data = {}
+        receivers_mails = []
+        for mail in db_mail_output:
+            mail_data["mail_id"] = mail[0]
+            mail_data["sender_id"] = mail[1]
+            mail_data["receiver_mail"] = "Multiple Receivers"
+            mail_data["sender_mail"] = get_user_email(mail[1])
+            receivers_mails.append(get_user_email(mail[2]))
+            mail_data["mail_subject"] = mail[3]
+            mail_data["mail_body"] = mail[4]
+            mail_data["mail_date"] = remove_milli_seconds(mail[5])
+            mail_data["mail_seen"] = mail[6]
+        mail_data["receivers_mails"] = receivers_mails
+        multiple_outbox.append(mail_data)
+        mail_data = {}   
+
+    outbox = single_outbox + multiple_outbox
+    outbox = sort_mails(outbox)
     sqlite_connection.close()
     return render_template("User_Mail/outbox.html", outbox_mails = outbox) 
 

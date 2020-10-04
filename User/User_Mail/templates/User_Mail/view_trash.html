@@ -70,7 +70,7 @@
                             <span class = "badge badge-warning text-white">Trash</span>
                             <strong style = "margin: 20px;">{{mail["sender_email"]}}</strong>
                             <span style = "margin: 20px;">{{mail["mail_subject"]}}</span>
-                            <a href = "{{url_for('user_mail_bp.trash')}}" class = "btn btn-primary float-right">view mail</a>
+                            <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}" class = "btn btn-primary float-right">view mail</a>
                             <strong style = "margin-right: 50px;" class = "float-right">{{mail["mail_date"]}}</strong>
 
                         </li>
