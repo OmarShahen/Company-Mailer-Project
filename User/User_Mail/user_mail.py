@@ -113,8 +113,9 @@ def return_outbox(sender_id):
 
     #Multiple receivers mails extraction
     multiple_outbox = []
-    select_distinct_mail_dates = """SELECT DISTINCT mail_date FROM mail WHERE multiple_receivers = 1;"""
-    db_distinct_dates = sqlite_connection.execute(select_distinct_mail_dates)
+    select_distinct_mail_dates = """SELECT DISTINCT mail_date FROM mail WHERE multiple_receivers = ?
+                                    AND sender_id = ? AND sender_trashed = ?;"""
+    db_distinct_dates = sqlite_connection.execute(select_distinct_mail_dates, (1, sender_id, 0))
     distinct_mail_dates = []
     for mail_date in db_distinct_dates:
         distinct_mail_dates.append(mail_date[0])
