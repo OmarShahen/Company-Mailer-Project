@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, session, request, redirect, url_fo
 from creating_users import allUsers, adminOfApplication
 import sqlite3
 from Forms.forms import bcrypt
-
+from User.User_Mail.user_mail import get_user_id
 user_profile_bp = Blueprint('user_profile_bp', __name__, template_folder = 'templates', static_folder = 'static')
 
 
@@ -76,8 +76,8 @@ def edit_profile():
 def view_all_users():  
 
     sqlite_connection = sqlite3.connect('Mail_DB.db')
-    select_allusers_query = """SELECT user_id , user_name, user_email FROM user;"""
-    allUsers = sqlite_connection.execute(select_allusers_query).fetchall()
+    select_allusers_query = """SELECT user_id , user_name, user_email FROM user WHERE user_id != ?;"""
+    allUsers = sqlite_connection.execute(select_allusers_query, (get_user_id(session["email"]),)).fetchall()
     sqlite_connection.close()
     return render_template("User_Profile/allUsers.html", allUsers = allUsers)
    

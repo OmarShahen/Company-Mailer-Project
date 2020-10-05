@@ -118,116 +118,121 @@
 
                 </tr>
         </table>
+        <form action = "{{url_for('user_mail_bp.send_multi_users')}}" style = "display: none;" method = "POST" id = "form">
+            <input type = "hidden" id = "mailsField" name = "allMail" value = ""/>
+        </form>
         </div>
         </div>
-    </body>
-    <script>
-
-        let receivers = [];
-        let allowSelection = false;
-        let allowAllSelection = true;
-        let allAddBtns = document.querySelectorAll("#addBtns");
-        let allMails = document.querySelectorAll("#userMail");
-        let searchBar = document.querySelector("#userInput");
-        let allTr = document.querySelectorAll("#row");
-
-
-        document.querySelector("#addReceiversButton").addEventListener("click", showButtons);
-        function showButtons()
-        {
-            allowSelection = true;
-            receivers = [];
-            document.querySelector("#selectAll").style.display = "block";
-            document.querySelector("#done").style.display = "block";
-            document.querySelector("#cancel").style.display = "block";
-            document.querySelector("#cancelAll").style.display = "block";
-            for(let i=0;i<allAddBtns.length;i++)
-                allAddBtns[i].style.display = "block";
-    
-
-        }
-
-        document.querySelector("#cancelAll").addEventListener("click", hideButtons);
-        function hideButtons()
-        {
-            allowSelection = false;
-            document.querySelector("#selectAll").style.display = "none";
-            document.querySelector("#done").style.display = "none";
-            document.querySelector("#cancel").style.display = "none";
-            document.querySelector("#cancelAll").style.display = "none";
-            console.log(receivers.toString());
-            for(let i=0;i<allAddBtns.length;i++)
-                allAddBtns[i].style.display = "none";
-        }
-
-
-        document.querySelector("#selectAll").addEventListener("click", selectAll);
-        function selectAll()
-        {
-            if(allowAllSelection){
-            let allMails = document.querySelectorAll("#userMail");
-            for(let i=0;i<allMails.length;i++){
-                receivers.push(allMails[i].innerHTML);
-                allAddBtns[i].innerHTML = "remove";
-                allAddBtns[i].className = "btn btn-danger btn-sm";
-                }
-                allowAllSelection = false;
-            }else{
-                allowAllSelection = true;
-            }
-        }
-
-        document.querySelector("#cancel").addEventListener("click", removeAllReceivers);
-        function removeAllReceivers()
-        {
-            receivers = [];
-            for(let i=0;i<allAddBtns.length;i++){
-                allAddBtns[i].className = "btn btn-primary btn-sm";
-                allAddBtns[i].innerHTML = "Add";
-            }
-
-        }
-    
-        for(let i=0;i<allAddBtns.length;i++)
-            allAddBtns[i].addEventListener("click", (event) => {
-                if(event.target.innerHTML == "Add"){
-                let userMail = event.target.parentNode.previousSibling.previousSibling.firstChild.innerHTML;
-                receivers.push(userMail);
-                event.target.className = "btn btn-danger btn-sm";
-                event.target.innerHTML = "remove";
-                }else{
-                    let userMail = event.target.parentNode.previousSibling.previousSibling.firstChild.innerHTML;
-                    for(let i=0;i<receivers.length;i++)
-                    {
-                        if(receivers[i] == userMail)
-                        {
-                            receivers.splice(i, 1);
-                        }
-                    }
-                    event.target.className = "btn btn-primary btn-sm";
-                    event.target.innerHTML = "Add";
-                }
-            });
-
+        <script>
         
-        document.querySelector("#done").addEventListener("click", () => window.location = "{{url_for('user_mail_bp.send_multi_users')}}" + "?allMail=" + JSON.stringify(receivers));
 
-        searchBar.addEventListener("keyup", filterMails)
-        function filterMails()
-        {
 
-            for(let i=0;i<allTr.length;i++)
+            let receivers = [];
+            let allowSelection = false;
+            let allowAllSelection = true;
+            let allAddBtns = document.querySelectorAll("#addBtns");
+            let allMails = document.querySelectorAll("#userMail");
+            let searchBar = document.querySelector("#userInput");
+            let allTr = document.querySelectorAll("#row");
+
+            document.querySelector("#addReceiversButton").addEventListener("click", showButtons);
+            function showButtons()
             {
-                let email = allTr[i].childNodes[5].childNodes[0].innerHTML;
-                if(email.toUpperCase().indexOf(searchBar.value.toUpperCase()) > -1)
-                {
-                    allTr[i].style.display = '';
+                allowSelection = true;
+                receivers = [];
+                document.querySelector("#selectAll").style.display = "block";
+                document.querySelector("#done").style.display = "block";
+                document.querySelector("#cancel").style.display = "block";
+                document.querySelector("#cancelAll").style.display = "block";
+                for(let i=0;i<allAddBtns.length;i++)
+                    allAddBtns[i].style.display = "block";
+            }
+
+            document.querySelector("#cancelAll").addEventListener("click", hideButtons);
+            function hideButtons()
+            {
+                allowSelection = false;
+                document.querySelector("#selectAll").style.display = "none";
+                document.querySelector("#done").style.display = "none";
+                document.querySelector("#cancel").style.display = "none";
+                document.querySelector("#cancelAll").style.display = "none";
+                for(let i=0;i<allAddBtns.length;i++)
+                    allAddBtns[i].style.display = "none";
+            }
+
+
+            document.querySelector("#selectAll").addEventListener("click", selectAll);
+            function selectAll()
+            {
+                if(allowAllSelection){
+                    let allMails = document.querySelectorAll("#userMail");
+                    for(let i=0;i<allMails.length;i++){
+                        receivers.push(allMails[i].innerHTML);
+                        allAddBtns[i].innerHTML = "remove";
+                        allAddBtns[i].className = "btn btn-danger btn-sm";
+                    }
+                    allowAllSelection = false;
                 }else{
-                    allTr[i].style.display = "none";
+                    allowAllSelection = true;
                 }
             }
+
+            document.querySelector("#cancel").addEventListener("click", removeAllReceivers);
+            function removeAllReceivers()
+            {
+                receivers = [];
+                for(let i=0;i<allAddBtns.length;i++){
+                    allAddBtns[i].className = "btn btn-primary btn-sm";
+                    allAddBtns[i].innerHTML = "Add";
+                }
+
+            }
+
+            for(let i=0;i<allAddBtns.length;i++)
+                allAddBtns[i].addEventListener("click", (event) => {
+                    if(event.target.innerHTML == "Add"){
+                        let userMail = event.target.parentNode.previousSibling.previousSibling.firstChild.innerHTML;
+                        receivers.push(userMail);
+                        event.target.className = "btn btn-danger btn-sm";
+                        event.target.innerHTML = "remove";
+                    }else{
+                        let userMail = event.target.parentNode.previousSibling.previousSibling.firstChild.innerHTML;
+                        for(let i=0;i<receivers.length;i++)
+                        {
+                            if(receivers[i] == userMail)
+                                {
+                                receivers.splice(i, 1);
+                                }   
+                        }
+                        event.target.className = "btn btn-primary btn-sm";
+                        event.target.innerHTML = "Add";
+                    }
+                });
+
+
+
+
+            document.querySelector("#done").addEventListener("click", () => {
+                document.forms["form"]["allMail"].value = JSON.stringify(receivers);
+                document.forms["form"].submit();
+            })
+
+
+            searchBar.addEventListener("keyup", filterMails)
+            function filterMails()
+            {
+
+                for(let i=0;i<allTr.length;i++)
+                {
+                    let email = allTr[i].childNodes[5].childNodes[0].innerHTML;
+                    if(email.toUpperCase().indexOf(searchBar.value.toUpperCase()) > -1)
+                    {
+                        allTr[i].style.display = '';
+                    }else{
+                        allTr[i].style.display = "none";
+                    }
+                }
         }
-           
-    
-    </script>
+</script>
+    </body>
     </html>

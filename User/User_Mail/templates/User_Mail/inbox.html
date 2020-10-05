@@ -79,7 +79,7 @@
                     <span class = 'badge badge-danger'>inbox</span>
                 {% endif %}
                 <strong style = "margin-left: 20px;"> {{mail['sender_mail']}}</strong>
-                <span style = 'margin-left: 50px;margin-right:50px;'>{{mail['mail_subject']}}</span> 
+                <span style = 'margin-left: 50px;margin-right:50px;' id = "mailSubject">{{mail['mail_subject']}}</span> 
                 <a href = "{{url_for('user_mail_bp.inbox_to_trash', mail_id = mail['mail_id'])}}" class = "btn btn-primary float-right" style = "margin-left: 10px;">Trash</a>
                 <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}"
                  class = "btn btn-primary float-right" style = "display:inline;">View mail</a>
@@ -88,7 +88,7 @@
            </li>
            {%endfor%}
        </ul>
-
     </div>
+    <script src = "{{url_for('static', filename = 'js/subjectShortner.js')}}"></script>
 </body>
 </html>

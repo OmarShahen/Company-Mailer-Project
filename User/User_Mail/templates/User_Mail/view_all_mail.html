@@ -71,7 +71,7 @@
                                 <p>                     
                                     <span class = "badge badge-primary">outbox</span>
                                     <strong style = "margin: 20px;">{{user_mail["receiver_mail"]}}</strong>
-                                    <span style = "margin: 20px;">{{user_mail["mail_subject"]}}</span>
+                                    <span style = "margin: 20px;" id = "mailSubject">{{user_mail["mail_subject"]}}</span>
                                     <a href = "{{url_for('user_mail_bp.all_mail_to_trash', mail_id = user_mail['mail_id'], trash_identity = 0)}}"
                                     class = "btn btn-primary float-right" style = "margin-left: 20px;">Trash</a>
                                     <a href = "{{url_for('user_mail_bp.view_mail', mail_id = user_mail['mail_id'])}}" class = "btn btn-primary float-right">view mail</a>
@@ -83,12 +83,12 @@
                             <li class = "list-group-item">
                                 <p>
                                     {% if user_mail["mail_seen"] %}                     
-                                        <span class = "badge badge-success">inbox</span>
+                                        <span class = "badge badge-dark">inbox</span>
                                     {% else %}
                                         <span class = "badge badge-danger">inbox</span>
                                     {% endif %}
                                     <strong style = "margin: 20px;">{{user_mail["sender_mail"]}}</strong>
-                                    <span style = "margin: 20px;">{{user_mail["mail_subject"]}}</span>
+                                    <span style = "margin: 20px;" id = "mailSubject">{{user_mail["mail_subject"]}}</span>
                                     <a href = "{{url_for('user_mail_bp.all_mail_to_trash', mail_id = user_mail['mail_id'], trash_identity = 1)}}"
                                     class = "btn btn-primary float-right" style = "margin-left: 20px;">Trash</a>
                                     <a href = "{{url_for('user_mail_bp.view_mail', mail_id = user_mail['mail_id'])}}" class = "btn btn-primary float-right">view mail</a>    
@@ -99,8 +99,9 @@
                     {% endfor %}
                 </ul>
                 </div>
-
         </div>
 
+
+        <script src = "{{url_for('static', filename = 'js/subjectShortner.js')}}"></script>
     </body>
 </html>

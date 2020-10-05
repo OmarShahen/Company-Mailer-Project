@@ -68,9 +68,15 @@
                     {% for mail in all_mail %}
                         <li class = "list-group-item">
                             <span class = "badge badge-warning text-white">Trash</span>
-                            <strong style = "margin: 20px;">{{mail["sender_email"]}}</strong>
+                            {% if mail["mail_identity"] == 1 %}
+                                <span class = "badge badge-secondary" style = "margin-left: 20px;">inbox</span>
+                            {% else %}
+                                <span class = "badge badge-secondary" style = "margin-left: 20px;">outbox</span>
+                            {% endif %}
+                            <strong style = "margin: 20px;">{{mail["sender_mail"]}}</strong>
                             <span style = "margin: 20px;">{{mail["mail_subject"]}}</span>
-                            <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}" class = "btn btn-primary float-right">view mail</a>
+                            <a href = "#" class = "btn btn-primary float-right" style = "margin-left: 20px;">Recycle Mail</a>
+                            <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}" class = "btn btn-primary float-right">View Mail</a>
                             <strong style = "margin-right: 50px;" class = "float-right">{{mail["mail_date"]}}</strong>
 
                         </li>
@@ -78,6 +84,6 @@
                 </ul>
             </div>
         </div>
-
+        <script src = "{{url_for('static', filename = 'js/subjectShortner.js')}}"></script>
     </body>
 </html>
