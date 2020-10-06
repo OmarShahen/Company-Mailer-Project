@@ -139,12 +139,6 @@ def return_outbox(sender_id):
         mail_data["receivers_mails"] = receivers_mails
         multiple_outbox.append(mail_data)
         mail_data = {}   
-
-    """for i in multiple_outbox:
-        print("=========")
-        for j in i:
-            print(i[j])
-        print("=========")"""
     outbox = multiple_outbox + single_outbox
     outbox = sort_mails(outbox)
     sqlite_connection.close()
@@ -173,6 +167,20 @@ def return_inbox(user_id):
     return inbox
 
 
+def sort_mails_by_date(all_mails):
+    date_formate = "%Y-%m-%d %H:%M:%S"
+    counter = 0
+    while(counter < len(all_mails)):
+        i = 0
+        while(i < len(all_mails)-1):
+            if(datetime.strptime(all_mails[i]["mail_date"], date_formate) < datetime.strptime(all_mails[i+1]["mail_date"], date_formate)):
+                temp = all_mails[i]
+                all_mails[i] = all_mails[i+1]
+                all_mails[i+1] = temp
+            i += 1
+        counter += 1
+    return all_mails
+    
 
 user_mail_bp = Blueprint('user_mail_bp', __name__, template_folder = 'templates', static_folder = 'static/user_mail')
 
@@ -183,13 +191,14 @@ def compose_email():
 @user_mail_bp.route('/compose-mail/<user_mail>')
 def compose_to_email(user_mail):
     user = [user_mail]
+    print(user)
     return render_template('User_Mail/composeEmail.html', userName = session['email'], to = user)
 
 @user_mail_bp.route("/compose-mail/multiple-users", methods = ["POST"])
 def send_multi_users():
     allReceiversMails = json.loads(request.form["allMail"])
-    print(type(allReceiversMails))
-    print(allReceiversMails)
+    if(len(allReceiversMails) == 1):
+        return redirect(url_for("user_mail_bp.compose_to_email", user_mail = allReceiversMails[0]))
     return render_template("User_Mail/composeEmail.html", userName = session['email'], to = allReceiversMails)
 
 @user_mail_bp.route('/sending-mail', methods = ['POST', 'GET'])
@@ -206,8 +215,11 @@ def sending_email():
     sqlite_connection = sqlite3.connect('MAIL_DB.db')
     insert_mail_query = """INSERT INTO mail (sender_id, receiver_id, mail_subject, mail_body, mail_date, multiple_receivers)
                             VALUES(?, ?, ?, ?, ?, ?);"""
+    multiple_receivers = 1
+    if len(all_receivers) == 1:
+        multiple_receivers = 0
     for receiver in all_receivers:
-        insert_mail_query_data = (sender_id, get_user_id(receiver), mail_subject, mail_body, mail_date, 1)
+        insert_mail_query_data = (sender_id, get_user_id(receiver), mail_subject, mail_body, mail_date, multiple_receivers)
         sqlite_connection.execute(insert_mail_query, insert_mail_query_data)
 
     uploaded_files = request.files.getlist("user_files")
@@ -319,11 +331,12 @@ def inbox_to_trash(mail_id):
     
 @user_mail_bp.route("/trash/view/all-mail")
 def trash():
-
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
-    select_inbox_trash = """SELECT mail_id, sender_id, mail_subject, mail_date FROM mail
-                            WHERE receiver_id = ? AND receiver_trashed = ?;"""
-    db_inbox_trash = sqlite_connection.execute(select_inbox_trash, (get_user_id(session["email"]), 1))
+    user_id = get_user_id(session["email"])
+
+    select_inbox_trash = """SELECT mail_id, sender_id, mail_subject, mail_date FROM mail WHERE
+                             receiver_id = ? AND receiver_trashed = ?;"""
+    db_inbox_trash = sqlite_connection.execute(select_inbox_trash, (user_id, 1))
     mail_data = {}
     inbox_trash = []
     for mail in db_inbox_trash:
@@ -331,28 +344,49 @@ def trash():
         mail_data["sender_mail"] = get_user_email(mail[1])
         mail_data["mail_subject"] = mail[2]
         mail_data["mail_date"] = remove_milli_seconds(mail[3])
-        mail_data["mail_identity"] = 1
+        mail_data["mail_identity"] = True
+        mail_data["outbox_status"] = False
         inbox_trash.append(mail_data)
         mail_data = {}
     
-    select_outbox_trash = """SELECT mail_id, sender_id, receiver_id, mail_subject, mail_date FROM mail
-                             WHERE sender_id = ? AND sender_trashed = ?;"""
-    db_outbox_trash = sqlite_connection.execute(select_outbox_trash, (get_user_id(session["email"]), 1))
-    outbox_trash = []
-    for mail in db_outbox_trash:
+    select_outbox_single_trash = """SELECT mail_id, sender_id, mail_subject, mail_date FROM mail WHERE
+                                    sender_id = ? AND sender_trashed = ? AND multiple_receivers = ?;"""
+    db_outbox_single_trash = sqlite_connection.execute(select_outbox_single_trash, (user_id, 1, 0))
+    outbox_single_trash = []
+    for mail in db_outbox_single_trash:
         mail_data["mail_id"] = mail[0]
         mail_data["sender_mail"] = get_user_email(mail[1])
-        mail_data["receiver_mail"] = get_user_email(mail[2])
-        mail_data["mail_subject"] = mail[3]
-        mail_data["mail_date"] = remove_milli_seconds(mail[4])
-        mail_data["mail_identity"] = 0
-        outbox_trash.append(mail_data)
+        mail_data["mail_subject"] = mail[2]
+        mail_data["mail_date"] = remove_milli_seconds(mail[3])
+        mail_data["mail_identity"] = False
+        mail_data["outbox_status"] = True
+        outbox_single_trash.append(mail_data)
         mail_data = {}
+    
+    select_distinct_mail_dates = """SELECT DISTINCT mail_date FROM mail WHERE sender_id = ? AND sender_trashed = ?
+                                    AND multiple_receivers = ?;"""
+    db_distinct_dates = sqlite_connection.execute(select_distinct_mail_dates, (user_id, 1, 1))
 
-    all_mail = sort_mails(inbox_trash + outbox_trash)
+    outbox_multiple_trash = []
+    for mail_date in db_distinct_dates:
+        select_multiple_trash_mail_query = """SELECT mail_id, sender_id, mail_subject, mail_date FROM mail
+                                              WHERE sender_id = ? AND sender_trashed = ? AND multiple_receivers = ?
+                                              AND mail_date = ?;"""
+        db_multiple_trash_mail = sqlite_connection.execute(select_multiple_trash_mail_query, (user_id, 1, 1, mail_date[0]))
+        for mail in db_multiple_trash_mail:
+            mail_data["mail_id"] = mail[0]
+            mail_data["sender_mail"] = "Multiple Receivers"
+            mail_data["mail_subject"] = mail[2]
+            mail_data["mail_date"] = remove_milli_seconds(mail[3])
+            mail_data["mail_identity"] = False
+            mail_data["outbox_status"] = True + True
+            outbox_multiple_trash.append(mail_data)
+            mail_data = {}
+            break
+   
+    all_mail = sort_mails_by_date(inbox_trash + outbox_single_trash + outbox_multiple_trash)
     sqlite_connection.close()
     return render_template("User_Mail/view_trash.html", all_mail = all_mail)
-
 
 @user_mail_bp.route("/trash/outbox/<mail_id>")
 def outbox_to_trash(mail_id):
@@ -365,25 +399,21 @@ def outbox_to_trash(mail_id):
     for check in db_check_result:
         check_multiple = check[0]
         break
-    print("check multiple: ", check_multiple)
     if check_multiple:
-        print("In the if condition")
         select_mail_date = """SELECT mail_date FROM mail WHERE mail_id = ?;"""
         db_mail_date = sqlite_connection.execute(select_mail_date, (mail_id,))
         mail_date = 0
         for date in db_mail_date:
             mail_date = date[0]
             break
-        print("The mail date is ", mail_date)
         select_sender_all_mails = """SELECT mail_id FROM mail WHERE sender_id = ? AND mail_date = ?;"""
         db_no_of_mails = sqlite_connection.execute(select_sender_all_mails, (get_user_id(session["email"]), mail_date)).fetchall()
         update_mail_to_trash_query = """UPDATE mail SET sender_trashed = ? WHERE sender_id = ? AND mail_date = ?;"""
-        print("The length is: ",len(db_no_of_mails))
         for i in range(len(db_no_of_mails)):
             sqlite_connection.execute(update_mail_to_trash_query, (1, get_user_id(session["email"]), mail_date))
     else:
         update_mail_query = """UPDATE mail SET sender_trashed = ? WHERE mail_id = ?;"""
-        sqlite_connection.execute(update_mail_query, (1, get_user_id(session["email"])))
+        sqlite_connection.execute(update_mail_query, (1, mail_id))
     sqlite_connection.commit()
     sqlite_connection.close()
     return redirect(url_for("user_mail_bp.see_outbox"))
@@ -405,8 +435,7 @@ def all_mail_to_trash(mail_id, trash_identity):
     return redirect(url_for("user_mail_bp.see_all_mail"))
 
 
-@user_mail_bp.route("/trash/inbox/recycle-mail/<int:mail_id>")
+@user_mail_bp.route("/trash/inbox/recycle-mail/<int:mail_id>/<int:trash_identity>/<int:outbox_status>")
 def recycle_trash(mail_id, trash_identity):
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
-    update_trash_query = """UPDATE mail SET """
 
