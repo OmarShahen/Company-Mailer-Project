@@ -53,9 +53,6 @@
                         <a href = "{{url_for('user_profile_bp.logout')}}" class = 'nav-link'>Logout</a>
                     </li>
                     <li class = 'nav-item'>
-                        <a href = "{{url_for('user_profile_bp.delete_account')}}" class = 'nav-link'>Delete Account</a>
-                    </li>
-                    <li class = 'nav-item'>
                         <a href = '#' class = 'nav-link'>Contact US</a>
                     </li>
                 </ul>
@@ -75,10 +72,9 @@
                             {% endif %}
                             <strong style = "margin: 20px;">{{mail["sender_mail"]}}</strong>
                             <span style = "margin: 20px;">{{mail["mail_subject"]}}</span>
-                            <a href = "#" class = "btn btn-primary float-right" style = "margin-left: 20px;">Recycle Mail</a>
+                            <a href = "{{url_for('user_mail_bp.recycle_trash', mail_id = mail['mail_id'], mail_identity = mail['mail_identity'], outbox_status = mail['outbox_status'])}}" class = "btn btn-primary float-right" style = "margin-left: 20px;">Recycle Mail</a>
                             <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}" class = "btn btn-primary float-right">View Mail</a>
                             <strong style = "margin-right: 50px;" class = "float-right">{{mail["mail_date"]}}</strong>
-
                         </li>
                     {% endfor %}
                 </ul>

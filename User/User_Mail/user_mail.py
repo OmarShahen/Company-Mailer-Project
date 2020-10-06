@@ -435,7 +435,40 @@ def all_mail_to_trash(mail_id, trash_identity):
     return redirect(url_for("user_mail_bp.see_all_mail"))
 
 
-@user_mail_bp.route("/trash/inbox/recycle-mail/<int:mail_id>/<int:trash_identity>/<int:outbox_status>")
-def recycle_trash(mail_id, trash_identity):
+@user_mail_bp.route("/trash/inbox/recycle-mail/<int:mail_id>/<int:mail_identity>/<int:outbox_status>")
+def recycle_trash(mail_id, mail_identity, outbox_status):
+
+    print("Mail ID: ",mail_id)
+    print("Mail identity: ", mail_identity)
+    print("outbox_status: ", outbox_status)
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
+
+    if mail_identity:
+        recycle_mail_query = """UPDATE mail SET receiver_trashed = ? WHERE mail_id = ?;"""
+        sqlite_connection.execute(recycle_mail_query, (0, mail_id))
+    else:
+        if outbox_status == True:
+            recycle_mail_query = """UPDATE mail SET sender_trashed = ? WHERE mail_id = ?;"""
+            sqlite_connection.execute(recycle_mail_query, (0, mail_id))
+        else:
+            select_mail_date = """SELECT mail_date FROM mail WHERE mail_id = ?;"""
+            db_mail_date = sqlite_connection.execute(select_mail_date, (mail_id,))
+            mail_date = 0
+            for date in db_mail_date:
+                mail_date = date[0]
+                break
+            recycle_mails_query = """UPDATE mail SET sender_trashed = ? WHERE mail_date = ?;"""
+            sqlite_connection.execute(recycle_mails_query, (0, mail_date))
+    sqlite_connection.commit()
+    sqlite_connection.close()
+    return redirect(url_for("user_mail_bp.trash"))
+
+
+
+
+
+
+
+
+
 
