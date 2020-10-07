@@ -53,10 +53,18 @@ def valid_login():
         email = request.form['email']
         password = request.form['password']
 
-        if adminOfApplication.get_password() == password and adminOfApplication.get_email() == email:
+        select_admin_query = """SELECT * FROM admin WHERE admin_email = 'omar@gmail.com';"""
+        db_admin_mail = sqlite_connection.execute(select_admin_query)
+        admin_mail = ""
+        admin_password = ""
+        for admin_data in db_admin_mail:
+            admin_mail = admin_data[1]
+            admin_password = admin_data[2]
+            break
+        if admin_password == password and admin_mail == email:
             session['email'] = email
             session['password'] = password
-            return render_template('Forms/admin.html', adminName = adminOfApplication.get_name().upper())
+            return redirect(url_for("admin_bp.admin_page"))
         
         if check_user_exist(email, password) == False:
             flash("This Account doesnot Exist", "danger")

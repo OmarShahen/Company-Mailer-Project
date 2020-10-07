@@ -4,6 +4,7 @@ from Forms.forms import forms_bp
 from User.User_Profile.user import user_profile_bp
 from User.User_Mail.user_mail import user_mail_bp
 from api.api import users_api_bp
+from Admin.admins import admin_bp
 
 import os
 
@@ -22,6 +23,7 @@ app.register_blueprint(forms_bp)
 app.register_blueprint(user_profile_bp)
 app.register_blueprint(user_mail_bp)
 app.register_blueprint(users_api_bp, url_prefix = '/api')
+app.register_blueprint(admin_bp)
 
 
 
