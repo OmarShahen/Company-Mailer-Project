@@ -53,6 +53,13 @@ def valid_login():
         email = request.form['email']
         password = request.form['password']
 
+        check_unauthrized_query = """SELECT user_email FROM unauthorize WHERE user_email = ?;"""
+        db_unauthorized_users = sqlite_connection.execute(check_unauthrized_query, (email,))
+        for mail in db_unauthorized_users:
+            if mail[0] == email:
+                flash("unauthorized", "unauthorized")
+                return redirect(url_for('forms_bp.login_form_page'))
+
         select_admin_query = """SELECT * FROM admin WHERE admin_email = 'omar@gmail.com';"""
         db_admin_mail = sqlite_connection.execute(select_admin_query)
         admin_mail = ""

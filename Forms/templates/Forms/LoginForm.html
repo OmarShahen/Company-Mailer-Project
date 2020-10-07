@@ -75,6 +75,20 @@
         {%endif%}
     {%endwith%}
 
+    {%with messages = get_flashed_messages(category_filter = ["unauthorized"])%}
+        {%if messages%}
+            {%for message in messages%}
+                <script>
+                    let alertMessage = "<div class = 'alert alert-danger alert-dismissible'>\
+                    <a href = '#' class = 'close' data-dismiss = 'alert'>&times;</a>\
+                    <strong>Error!!! </strong> you are <strong>{{message}}</strong> to login\
+                    </div>";
+                    document.getElementById("alertMessage").innerHTML = alertMessage;
+                </script>
+            {%endfor%}
+        {%endif%}
+    {%endwith%}
+
 
 
 

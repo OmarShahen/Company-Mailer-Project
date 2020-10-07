@@ -3,10 +3,7 @@
     <head>
         <title>Admin</title>
         <meta charset = "UTF-8">
-        <meta name = "viewport" content = "width = device-width, initial-scale = 1">
-
-        <meta http-equiv = "refresh" content = "5">
-
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1"> 
 
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -33,7 +30,8 @@
                             <th>ID</th>
                             <th>Name</th>
                             <th>E-mail</th>
-                            <th>Status</th>
+                            <th><a href = "#" class = "text-primary" id = "statusButton">Status</a></th>
+                            <th><a href = "#" class = "text-primary" id = "showAuthorizationButton">Show Authorization</a></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,13 +39,18 @@
                         <tr>
                             <td>{{user["user_id"]}}</td>
                             <td>{{user["user_name"]}}</td>
-                            <td>{{user["user_email"]}}</td>
+                            <td id = "userMail">{{user["user_email"]}}</td>
                             {% if user["user_status"] == 1 %}
                                 <td class = "text-success">online</td>
-                            {% else%}
+                            {% else %}
                                 <td class = "text-secondary">offline</td>
                             {% endif %}
-
+                            {% if user["user_authorized"] == True %}
+                                <td><a href = "{{url_for('admin_bp.admin_unauthorize', user_mail = user['user_email'])}}" class = "btn btn-danger btn-sm" id = "authorizationButton" style = "display: none;">unauthorize</a></td>
+                            {% else %}
+                                <td><a href = "{{url_for('admin_bp.admin_authorize', user_mail = user['user_email'])}}" class = "btn btn-success btn-sm" id = "authorizationButton" style = "display: none;">authorize</a></td>
+                            {% endif %}
+                            <td></td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -55,5 +58,28 @@
             </div>
         </div>
 
+        <script>
+
+            let clicked = true;
+            let showAuthorizationButton = document.querySelector("#showAuthorizationButton");
+            document.querySelector("#showAuthorizationButton").addEventListener("click", () => {
+
+                let authBtns = document.querySelectorAll("#authorizationButton");
+                $("a#authorizationButton").fadeToggle();
+
+                if(clicked)
+                {
+                    showAuthorizationButton.innerHTML = "Hide Authorization";
+                    clicked = false;
+                }else
+                {
+                    showAuthorizationButton.innerHTML = "Show Authorization";
+                    clicked = true;
+                }
+
+
+            });
+
+        </script>
     </body>
 </html>
