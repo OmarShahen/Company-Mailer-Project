@@ -41,9 +41,9 @@
                             <td>{{user["user_name"]}}</td>
                             <td id = "userMail">{{user["user_email"]}}</td>
                             {% if user["user_status"] == 1 %}
-                                <td class = "text-success">online</td>
+                                <td class = "text-success" id = "userStatus">online</td>
                             {% else %}
-                                <td class = "text-secondary">offline</td>
+                                <td class = "text-secondary" id = "userStatus">offline</td>
                             {% endif %}
                             {% if user["user_authorized"] == True %}
                                 <td><a href = "{{url_for('admin_bp.admin_unauthorize', user_mail = user['user_email'])}}" class = "btn btn-danger btn-sm" id = "authorizationButton" style = "display: none;">unauthorize</a></td>
@@ -77,9 +77,39 @@
                     clicked = true;
                 }
 
-
             });
 
+        </script>
+
+        <script>
+
+        setInterval(getUsersStatus, 5000);
+        function getUsersStatus()
+        {
+            let userStatus = document.querySelectorAll("#userStatus");
+            let xhttp = new XMLHttpRequest();            
+            xhttp.onreadystatechange = function()
+            {
+                if(this.readyState == 4 && this.status == 200)
+                {
+                    serverStatusRespond = JSON.parse(this.responseText);
+                    
+                    for(let i=0;i<userStatus.length;i++)
+                    {
+                        if(serverStatusRespond[i] == true)
+                        {
+                            userStatus[i].innerHTML = "online";
+                            userStatus[i].className = "text-success";
+                        }else{
+                            userStatus[i].innerHTML = "offline";
+                            userStatus[i].className = "text-secondary";
+                        }
+                    }
+                }
+            };
+            xhttp.open("GET", "{{url_for('admin_bp.check_status')}}", true);
+            xhttp.send();
+        }  
         </script>
     </body>
 </html>

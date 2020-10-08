@@ -54,3 +54,12 @@ def admin_authorize(user_mail):
     return redirect(url_for("admin_bp.admin_page"))
 
     
+@admin_bp.route("/admin/user-activity", methods = ["GET"])
+def check_status():
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_status_query = """SELECT user_active FROM user;"""
+    db_users_activity = sqlite_connection.execute(select_status_query)
+    users_activity = []
+    for status in db_users_activity:
+        users_activity.append(status[0])
+    return jsonify(users_activity)
