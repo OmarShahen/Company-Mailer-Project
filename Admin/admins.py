@@ -1,6 +1,6 @@
 from flask import Blueprint, request, render_template, url_for, jsonify, flash, redirect
 import sqlite3
-
+from Forms.forms import bcrypt
 admin_bp = Blueprint("admin_bp", __name__, template_folder = "templates")
 
 @admin_bp.route("/admin/main-page")
@@ -63,3 +63,42 @@ def check_status():
     for status in db_users_activity:
         users_activity.append(status[0])
     return jsonify(users_activity)
+
+
+
+@admin_bp.route("/admin/add-admin", methods = ["POST"])
+def add_admin():
+    admin_mail = request.form.get("adminMail")
+    admin_password = request.form.get("adminPassword")
+    admin_phone = request.form.get("adminPhone")  
+    admin_password = bcrypt.generate_password_hash(admin_password).decode("UTF-8")
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    add_admin_query = """INSERT INTO admin (admin_email, admin_password, admin_phone) VALUES(?, ?, ?);"""
+    sqlite_connection.execute(add_admin_query, (admin_mail, admin_password, admin_phone))
+    sqlite_connection.commit()
+    sqlite_connection.close()
+    return redirect(url_for("admin_bp.admin_page")) 
+
+@admin_bp.route("/admin/emails-validator/<input_mail>")
+def email_validator(input_mail):
+    if "@" not in input_mail:
+        input_mail = input_mail + "@"
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_all_mails_query = """SELECT admin_email FROM admin;"""
+    db_all_mails = sqlite_connection.execute(select_all_mails_query)
+    for mail in db_all_mails:
+        if input_mail.split("@")[0] == mail[0].split("@")[0]:
+            response_message = {"message": "This mail is taken", "valid": False}
+            return jsonify(response_message)
+    response_message = {"message": "valid mail name", "valid": True}
+    return jsonify(response_message)
+
+@admin_bp.route("/admin/phone-number-validator/<phone_number>")
+def phone_validator(phone_number):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_phones_query = """SELECT admin_phone FROM admin;"""
+    db_phone_numbers = sqlite_connection.execute(select_phones_query)
+    for phone in db_phone_numbers:
+        if phone_number == phone[0]:
+            return jsonify("This number is taken")
+    return jsonify("")

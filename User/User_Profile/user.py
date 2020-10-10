@@ -109,6 +109,18 @@ def delete_account():
 
 
 
-
+@user_profile_bp.route("/contact-us")
+def contact_us():
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_query = """SELECT admin_email, admin_phone FROM admin ORDER BY admin_id ASC;"""
+    db_admins = sqlite_connection.execute(select_query)
+    all_admins = []
+    admin_data = {}
+    for admin in db_admins:
+        admin_data["admin_email"] = admin[0]
+        admin_data["admin_phone"] = admin[1]
+        all_admins.append(admin_data)
+        admin_data = {}
+    return render_template("User_Profile/contactUs.html", all_admins = all_admins)
 
     

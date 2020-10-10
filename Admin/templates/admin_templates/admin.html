@@ -24,6 +24,35 @@
                 <h1>Mail Services</h1>
             </div>
             <div class = "row">
+                <div class = "modal fade" role = "dialog" id = "adminForm">
+                    <div class = "modal-dialog modal-lg">
+                        <div class = "modal-content">
+                            <div class = "modal-header">
+                                <h2>Add <span class = "text-success">New</span> Admin</h2>
+                                <button class = "close" data-dismiss = "modal">&times;</button>
+                            </div>
+                            <div class = "modal-body">
+                                <form action = "{{url_for('admin_bp.add_admin')}}" method = "POST">
+                                    <div class = "form-group">
+                                        <label for = "adminMail">Admin Mail: </label>
+                                        <span id = "alertMail" style = "display: none;"></span>
+                                        <input type = "email" name = "adminMail" id = "adminMail" class = "form-control" required>
+                                    </div>
+                                    <div class = "form-group">
+                                        <label for = "adminPassword">Admin Password: </label>
+                                        <input type = "password" name = "adminPassword" id = "adminPassowrd" class = "form-control" required>
+                                    </div>
+                                    <div class = "form-group">
+                                        <label for = "adminPhone">Admin Phone: </label>
+                                        <span id = "alertPhone" class = "text-danger" style = "display: none;"></span>
+                                        <input type = "text" name = "adminPhone" id = "adminPhone" class = "form-control" required>
+                                        <input type = "submit" value = "Submit" class = "btn btn-primary" style = "margin-top: 20px;" id = "formBtn">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <table class = "table">
                     <thead>
                         <tr>
@@ -31,7 +60,8 @@
                             <th>Name</th>
                             <th>E-mail</th>
                             <th><a href = "#" class = "text-primary" id = "statusButton">Status</a></th>
-                            <th><a href = "#" class = "text-primary" id = "showAuthorizationButton">Show Authorization</a></th>
+                            <th><a href = "#" class = "text-primary" id = "showAuthorizationButton">Hide Authorization</a></th>
+                            <th><button class = "btn btn-success btn-sm" data-toggle = "modal" data-target = "#adminForm">Add New Admin</button></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,9 +76,9 @@
                                 <td class = "text-secondary" id = "userStatus">offline</td>
                             {% endif %}
                             {% if user["user_authorized"] == True %}
-                                <td><a href = "{{url_for('admin_bp.admin_unauthorize', user_mail = user['user_email'])}}" class = "btn btn-danger btn-sm" id = "authorizationButton" style = "display: none;">unauthorize</a></td>
+                                <td><a href = "{{url_for('admin_bp.admin_unauthorize', user_mail = user['user_email'])}}" class = "btn btn-danger btn-sm" id = "authorizationButton">unauthorize</a></td>
                             {% else %}
-                                <td><a href = "{{url_for('admin_bp.admin_authorize', user_mail = user['user_email'])}}" class = "btn btn-success btn-sm" id = "authorizationButton" style = "display: none;">authorize</a></td>
+                                <td><a href = "{{url_for('admin_bp.admin_authorize', user_mail = user['user_email'])}}" class = "btn btn-success btn-sm" id = "authorizationButton">authorize</a></td>
                             {% endif %}
                             <td></td>
                         </tr>
@@ -69,7 +99,7 @@
 
                 if(clicked)
                 {
-                    showAuthorizationButton.innerHTML = "Hide Authorization";
+                    showAuthorizationButton.innerHTML = "Show Authorization";
                     clicked = false;
                 }else
                 {
@@ -80,7 +110,6 @@
             });
 
         </script>
-
         <script>
 
         setInterval(getUsersStatus, 5000);
@@ -110,6 +139,70 @@
             xhttp.open("GET", "{{url_for('admin_bp.check_status')}}", true);
             xhttp.send();
         }  
+        </script>
+        <script>
+            document.querySelector("#adminMail").addEventListener("keyup", () => {
+                let emailInputField= document.querySelector("#adminMail").value;
+                if(emailInputField == "")
+                {
+                    console.log("in the empty condition");
+                    return
+                }
+                let xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function ()
+                {
+                    if(this.readyState == 4 && this.status == 200)
+                    {
+                        document.querySelector("#alertMail").style.display = "block";
+                        let responseMessasge = JSON.parse(this.responseText);
+                        document.querySelector("#alertMail").innerHTML = responseMessasge["message"];
+                        if(responseMessasge["valid"] == true)
+                            document.querySelector("#alertMail").className = "text-success";
+                        else
+                            document.querySelector("#alertMail").className = "text-danger";
+                    }
+                };
+                xhttp.open("GET", "/admin/emails-validator/" + document.querySelector("#adminMail").value, true);
+                console.log("Made it here");
+                xhttp.send();
+            });
+        </script>
+
+        <script>
+            document.querySelector("#adminPhone").addEventListener("keyup", () => {
+                let phoneNumber = document.querySelector("#adminPhone").value;
+                if(phoneNumber.length < 11)
+                {
+                    return;
+                }else
+                {
+                    let xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function()
+                    {
+                        if(this.readyState == 4 && this.status == 200)
+                        {
+                            document.querySelector("#alertPhone").style.display = "block";
+                            document.querySelector("#alertPhone").innerHTML = JSON.parse(this.responseText);
+                        }
+                    };
+                    xhttp.open("GET", "/admin/phone-number-validator/" + phoneNumber, true);
+                    xhttp.send();
+                }
+            });
+        </script>
+
+        <script>
+            document.querySelector("#formBtn").addEventListener("click", (event) => {
+
+                let emailErrorMessage = document.querySelector("#alertMail").innerHTML;
+                let phoneErrorMessage = document.querySelector("#alertPhone").innerHTML;
+                let submitBtn = document.querySelector("#formBtn");
+
+                if(emailErrorMessage == "This mail is taken" || phoneErrorMessage == "This number is taken")
+                {
+                    event.preventDefault();
+                }
+            });
         </script>
     </body>
 </html>

@@ -25,15 +25,18 @@ def check_user_exist(user_email, user_password):
 
 def check_admin_exist(user_email, user_password):
     sqlite_connection = sqlite3.connect('MAIL_DB.db')
-    select_query = """SELECT admin_email, admin_password FROM admin WHERE admin_email = ?;"""
-    user_record = sqlite_connection.execute(select_query, (user_email,)).fetchall()
-    if len(user_record) == 0:
+    select_query = """SELECT admin_email, admin_password FROM admin;"""
+    db_admin_records = sqlite_connection.execute(select_query).fetchall()
+    sqlite_connection.close()
+    if len(db_admin_records) == 0:
         return False
-    for data in user_record:
-        if bcrypt.check_password_hash(data[1], user_password):
+    for admin in db_admin_records:
+        print(user_email, " == ", admin[0])
+        print("Encryption result: ", bcrypt.check_password_hash(admin[1], user_password))
+        if user_email == admin[0] and bcrypt.check_password_hash(admin[1], user_password):
             return True
     return False
-
+         
 
 def get_user_name(user_email):
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
@@ -72,15 +75,8 @@ def valid_login():
             if mail[0] == email:
                 flash("unauthorized", "unauthorized")
                 return redirect(url_for('forms_bp.login_form_page'))
-
-        select_admin_query = """SELECT * FROM admin WHERE admin_email = 'omar@gmail.com';"""
-        db_admin_mail = sqlite_connection.execute(select_admin_query)
-        admin_mail = ""
-        admin_password = ""
-        for admin_data in db_admin_mail:
-            admin_mail = admin_data[1]
-            admin_password = admin_data[2]
-            break
+        
+        
         if check_admin_exist(email, password):
             session['email'] = email
             session['password'] = password
@@ -186,7 +182,6 @@ def email_validator(input_mail):
     return jsonify(response_message)
 
         
-    
     
 
 
