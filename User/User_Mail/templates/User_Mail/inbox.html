@@ -64,6 +64,10 @@
         <div class = "row">
             <h2>Inbox</h2>
         </div>  
+
+        <div class = "row">
+            <input type = "text" id = "searchBar" class = "form-control" placeholder = "Search with E-mail" style = "margin: 20px;">
+        </div>
     <div>
         {% with messages = get_flashed_messages(category_filter = ["welcoming_user"]) %}
             {% if messages %}
@@ -104,7 +108,9 @@
                 {% else %}
                     <span class = 'badge badge-danger'>inbox</span>
                 {% endif %}
-                <strong style = "margin-left: 20px;"> {{mail['sender_mail']}}</strong>
+                <a href = "{{url_for('user_mail_bp.compose_to_email', user_mail = mail['sender_mail'])}}" style = "color: black;">
+                    <strong style = "margin-left: 20px;" id = "userMail"> {{mail['sender_mail']}}</strong>
+                </a>
                 <span style = 'margin-left: 50px;margin-right:50px;' id = "mailSubject">{{mail['mail_subject']}}</span> 
                 <a href = "{{url_for('user_mail_bp.inbox_to_trash', mail_id = mail['mail_id'])}}" class = "btn btn-primary float-right" style = "margin-left: 10px;">Trash</a>
                 <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}"
@@ -121,5 +127,27 @@
             $("#welcomeModal").modal();
         }
     </script>
+
+         <script>
+        setInterval(updateServer, 5000);
+function updateServer()
+{
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function()
+    {
+        if(this.readyState == 4 && this.status == 200)
+        {
+            
+        }
+    };
+
+    xhttp.open("GET", "{{url_for('user_profile_bp.user_activity')}}", true)
+    xhttp.send();
+}
+    </script>
+    
+
+    <script src = "{{url_for('static', filename = 'js/searchBar.js')}}"></script>
+
 </body>
 </html>

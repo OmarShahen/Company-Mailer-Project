@@ -60,6 +60,9 @@
             <div class = "row">
                 <h2>All Mails</h2>
             </div>
+            <div class = "row">
+                <input type = "text" id = "searchBar" class = "form-control" style = "margin: 20px;" placeholder = "Search E-mail Here">
+            </div>
             <div>
                 <ul class = "list-group list-group-flush">
                     {% for user_mail in all_mail %}
@@ -67,7 +70,15 @@
                             <li class = "list-group-item">
                                 <p>                     
                                     <span class = "badge badge-primary">outbox</span>
-                                    <strong style = "margin: 20px;">{{user_mail["receiver_mail"]}}</strong>
+
+                                    {%if user_mail["receiver_mail"] != "Multiple Receivers"%}
+                                        <a href = "{{url_for('user_mail_bp.compose_to_email', user_mail = user_mail['sender_mail'])}}" style = "color: black;">
+                                            <strong style = "margin: 20px;" id = "userMail">{{user_mail["sender_mail"]}}</strong>
+                                        </a>
+                                    {% else %}
+                                        <strong style = "margin: 20px;" id = "userMail">{{user_mail["sender_mail"]}}</strong>
+                                    {% endif %}
+
                                     <span style = "margin: 20px;" id = "mailSubject">{{user_mail["mail_subject"]}}</span>
                                     <a href = "{{url_for('user_mail_bp.all_mail_to_trash', mail_id = user_mail['mail_id'], trash_identity = 0)}}"
                                     class = "btn btn-primary float-right" style = "margin-left: 20px;">Trash</a>
@@ -84,7 +95,9 @@
                                     {% else %}
                                         <span class = "badge badge-danger">inbox</span>
                                     {% endif %}
-                                    <strong style = "margin: 20px;">{{user_mail["sender_mail"]}}</strong>
+                                    <a href = "{{url_for('user_mail_bp.compose_to_email', user_mail = user_mail['sender_mail'])}}" style = "color: black;">
+                                        <strong style = "margin: 20px;" id = "userMail">{{user_mail["sender_mail"]}}</strong>
+                                    </a>
                                     <span style = "margin: 20px;" id = "mailSubject">{{user_mail["mail_subject"]}}</span>
                                     <a href = "{{url_for('user_mail_bp.all_mail_to_trash', mail_id = user_mail['mail_id'], trash_identity = 1)}}"
                                     class = "btn btn-primary float-right" style = "margin-left: 20px;">Trash</a>
@@ -100,5 +113,7 @@
 
 
         <script src = "{{url_for('static', filename = 'js/subjectShortner.js')}}"></script>
+        <script src = "{{url_for('static', filename = 'js/searchBar.js')}}"></script>
+
     </body>
 </html>

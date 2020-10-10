@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, request, redirect, url_for, flash, abort
+from flask import Blueprint, render_template, session, request, redirect, url_for, flash, abort, jsonify
 from creating_users import allUsers, adminOfApplication
 import sqlite3
 from Forms.forms import bcrypt
@@ -123,4 +123,17 @@ def contact_us():
         admin_data = {}
     return render_template("User_Profile/contactUs.html", all_admins = all_admins)
 
-    
+
+@user_profile_bp.route("/user-activity", methods = ["GET"])
+def user_activity():
+    user_id = get_user_id(session["email"])
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    update_active_query = """UPDATE user SET user_active = ? WHERE user_id = ?;"""
+    sqlite_connection.execute(update_active_query, (1,user_id))
+    sqlite_connection.commit()
+    sqlite_connection.close()
+    return   jsonify({"active": True})
+
+
+
+
