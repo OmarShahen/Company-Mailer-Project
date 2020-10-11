@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, request, redirect, url_for, flash, abort
+from flask import Blueprint, render_template, session, request, redirect, url_for, flash, abort, jsonify
 from creating_users import allUsers, adminOfApplication
 import sqlite3
 from Forms.forms import bcrypt
@@ -109,6 +109,31 @@ def delete_account():
 
 
 
+@user_profile_bp.route("/contact-us")
+def contact_us():
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_query = """SELECT admin_email, admin_phone FROM admin ORDER BY admin_id ASC;"""
+    db_admins = sqlite_connection.execute(select_query)
+    all_admins = []
+    admin_data = {}
+    for admin in db_admins:
+        admin_data["admin_email"] = admin[0]
+        admin_data["admin_phone"] = admin[1]
+        all_admins.append(admin_data)
+        admin_data = {}
+    return render_template("User_Profile/contactUs.html", all_admins = all_admins)
 
 
-    
+@user_profile_bp.route("/user-activity", methods = ["GET"])
+def user_activity():
+    user_id = get_user_id(session["email"])
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    update_active_query = """UPDATE user SET user_active = ? WHERE user_id = ?;"""
+    sqlite_connection.execute(update_active_query, (1,user_id))
+    sqlite_connection.commit()
+    sqlite_connection.close()
+    return   jsonify({"active": True})
+
+
+
+

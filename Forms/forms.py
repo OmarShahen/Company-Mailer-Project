@@ -4,6 +4,7 @@ from creating_users import allUsers, adminOfApplication
 import sqlite3
 import datetime
 from flask_bcrypt import Bcrypt
+import json
 
 
 
@@ -21,6 +22,21 @@ def check_user_exist(user_email, user_password):
         if bcrypt.check_password_hash(data[1], user_password):
             return True
     return False
+
+def check_admin_exist(user_email, user_password):
+    sqlite_connection = sqlite3.connect('MAIL_DB.db')
+    select_query = """SELECT admin_email, admin_password FROM admin;"""
+    db_admin_records = sqlite_connection.execute(select_query).fetchall()
+    sqlite_connection.close()
+    if len(db_admin_records) == 0:
+        return False
+    for admin in db_admin_records:
+        print(user_email, " == ", admin[0])
+        print("Encryption result: ", bcrypt.check_password_hash(admin[1], user_password))
+        if user_email == admin[0] and bcrypt.check_password_hash(admin[1], user_password):
+            return True
+    return False
+         
 
 def get_user_name(user_email):
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
@@ -53,10 +69,18 @@ def valid_login():
         email = request.form['email']
         password = request.form['password']
 
-        if adminOfApplication.get_password() == password and adminOfApplication.get_email() == email:
+        check_unauthrized_query = """SELECT user_email FROM unauthorize WHERE user_email = ?;"""
+        db_unauthorized_users = sqlite_connection.execute(check_unauthrized_query, (email,))
+        for mail in db_unauthorized_users:
+            if mail[0] == email:
+                flash("unauthorized", "unauthorized")
+                return redirect(url_for('forms_bp.login_form_page'))
+        
+        
+        if check_admin_exist(email, password):
             session['email'] = email
             session['password'] = password
-            return render_template('Forms/admin.html', adminName = adminOfApplication.get_name().upper())
+            return redirect(url_for("admin_bp.admin_page"))
         
         if check_user_exist(email, password) == False:
             flash("This Account doesnot Exist", "danger")
@@ -92,48 +116,73 @@ def auto_redirect(user_email, user_password):
         return render_template("Forms/userPage.html",user_name = get_user_name(user_email))
 
 
-@forms_bp.route('/ValidationRegistration',methods = ['POST']) #Creating User
-def Validation():
-    if request.method == 'POST':
+@forms_bp.route('/Validate-Registration', methods = ["POST"]) #Creating User
+def validation():
 
-        name = request.form['name']
-        password = bcrypt.generate_password_hash(request.form['password']).decode("UTF-8")
-        email = request.form['email']
-        gender = request.form['gender']
-        date_of_birth = request.form['dateOfBirth']
-        city = request.form['city']
-        country = request.form['country']
-        contact = request.form['contact']
-        account_creation_date = datetime.datetime.now()
+    sqlite_connection = sqlite3.connect('Mail_DB.db')
 
-        sqlite_connection = sqlite3.connect('Mail_DB.db')
+    select_mails_query = """SELECT user_email FROM user;"""
+    db_all_users_emails = sqlite_connection.execute(select_mails_query)
+    for mail in db_all_users_emails:
+        if request.form['email'] == mail[0]:
+            flash("This email is already taken", "email_error")
+            return redirect(url_for('forms_bp.registerForm'))
 
-        data_query = """INSERT INTO user (user_name, user_email, user_password, user_gender, user_date_of_birth,
-                         user_city, user_country, user_contact, user_account_creation_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?); """
-        user_data = (name, email, password,
-        gender, date_of_birth, city, country,
-        contact, account_creation_date)
+    name = request.form['name']
+    password = bcrypt.generate_password_hash(request.form['password']).decode("UTF-8")
+    email = request.form['email']
+    gender = request.form['gender']
+    date_of_birth = request.form['dateOfBirth']
+    city = request.form['city']
+    country = request.form['country']
+    contact = request.form['contact']
+    account_creation_date = datetime.datetime.now()
 
-        sqlite_connection.execute(data_query, user_data)
-        sqlite_connection.commit()
-        sqlite_connection.close()
+    data_query = """INSERT INTO user (user_name, user_email, user_password, user_gender, user_date_of_birth,
+                    user_city, user_country, user_contact, user_account_creation_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?); """
+    user_data = (name, email, password,
+    gender, date_of_birth, city, country,
+    contact, account_creation_date)
 
-        user_record = {
-                       "name": name,
-                       "email": email,
-                       "password": password,
-                       "gender": gender,
-                       "date_of_birth": date_of_birth,
-                       "city": city,
-                       "country": country,
-                       "contact": contact,
-                       "account_creation_date": account_creation_date
-                       }
+    sqlite_connection.execute(data_query, user_data)
+    sqlite_connection.commit()
+    sqlite_connection.close()
+
+    user_record = {
+                    "name": name,
+                    "email": email,
+                    "password": password,
+                    "gender": gender,
+                    "date_of_birth": date_of_birth,
+                    "city": city,
+                    "country": country,
+                    "contact": contact,
+                    "account_creation_date": account_creation_date
+                    }
              
-        session['name'] = name
-        session['email'] = email
-        session['password'] = password
-        return redirect(url_for("user_mail_bp.see_inbox"))
-    else:
-        return '<h1>Failed</h1>'     
+    session['name'] = name
+    session['email'] = email
+    flash(name.upper(), "welcoming_user")
+    return redirect(url_for("user_mail_bp.see_inbox"))
+
+@forms_bp.route("/emails-validator/<input_mail>")
+def email_validator(input_mail):
+    if "@" not in input_mail:
+        input_mail = input_mail + "@"
+    print(input_mail)
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_all_mails_query = """SELECT user_email FROM user;"""
+    db_all_mails = sqlite_connection.execute(select_all_mails_query)
+    for mail in db_all_mails:
+
+        if input_mail.split("@")[0] == mail[0].split("@")[0]:
+            response_message = {"message": "this mail is taken", "valid": False}
+            return jsonify(response_message)
+    response_message = {"message": "valid mail name", "valid": True}
+    return jsonify(response_message)
+
+        
+    
+
+
 

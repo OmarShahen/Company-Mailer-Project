@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html lang = "en">
     <head>
-        <title>Trash</title>
         <meta charset = "UTF-8">
-        <meta name = "viewport" content = "width = device-width, initial-scale = 1">
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1"> 
+
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
         <!-- jQuery library -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
+    
         <!-- Popper JS -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-
+    
         <!-- Latest compiled JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     </head>
     <body>
         <div class = "container-fluid">
-            <div class = "row text-white bg-dark">
+            <div class = "row bg-dark text-white">
                 <h1>Mail Services</h1>
             </div>
-            
             <div>
                 <ul class = "nav nav-justified bg-light">
                     
@@ -57,29 +56,22 @@
                     </li>
                 </ul>
             </div>
-            <div class = "row text-dark">
-                <h3>Trash</h3>
-            </div>
-            <div>
-                <ul class = "list-group list-group-flush">
-                    {% for mail in all_mail %}
-                        <li class = "list-group-item">
-                            <span class = "badge badge-warning text-white">Trash</span>
-                            {% if mail["mail_identity"] == 1 %}
-                                <span class = "badge badge-secondary" style = "margin-left: 20px;">inbox</span>
-                            {% else %}
-                                <span class = "badge badge-secondary" style = "margin-left: 20px;">outbox</span>
-                            {% endif %}
-                            <strong style = "margin: 20px;">{{mail["sender_mail"]}}</strong>
-                            <span style = "margin: 20px;">{{mail["mail_subject"]}}</span>
-                            <a href = "{{url_for('user_mail_bp.recycle_trash', mail_id = mail['mail_id'], mail_identity = mail['mail_identity'], outbox_status = mail['outbox_status'])}}" class = "btn btn-primary float-right" style = "margin-left: 20px;">Recycle Mail</a>
-                            <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}" class = "btn btn-primary float-right">View Mail</a>
-                            <strong style = "margin-right: 50px;" class = "float-right">{{mail["mail_date"]}}</strong>
-                        </li>
+            <table class = "table">
+                <thead>
+                    <tr>
+                        <th>Admin Mail</th>
+                        <th>Admin Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for admin in all_admins %}
+                    <tr>
+                        <td>{{admin["admin_email"]}}</td>
+                        <td>{{admin["admin_phone"]}}</td>
+                    </tr>
                     {% endfor %}
-                </ul>
-            </div>
+                </tbody>
+            </table>
         </div>
-        <script src = "{{url_for('static', filename = 'js/subjectShortner.js')}}"></script>
     </body>
 </html>

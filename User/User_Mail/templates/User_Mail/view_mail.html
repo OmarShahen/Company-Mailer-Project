@@ -53,7 +53,7 @@
                         <a href = "{{url_for('user_profile_bp.logout')}}" class = 'nav-link'>Logout</a>
                     </li>
                     <li class = 'nav-item'>
-                        <a href = '#' class = 'nav-link'>Contact US</a>
+                        <a href = "{{url_for('user_profile_bp.contact_us')}}" class = 'nav-link'>Contact US</a>
                     </li>
                 </ul>
             </div>
@@ -79,7 +79,9 @@
                 <div class = "jumbotron mt-4 mr-6" style = "width: 700px;">
                 <h5>Subject: {{mail['mail_subject']}}</h5>
                 <br>
-                <span>From: </span><strong style = "margin-left: 20px;">{{mail['sender_mail']}}</strong>
+                <span>From: </span><a href = "{{url_for('user_mail_bp.compose_to_email', user_mail = mail['sender_mail'])}}" style = "color: black;">
+                    <strong style = "margin-left: 20px;">{{mail['sender_mail']}}</strong>
+                </a>
                 <br>
                 <span>Date: </span><strong style = "margin-left: 20px;">{{mail['mail_date']}}</strong>
                 <span style = "display: block;">Body:</span>

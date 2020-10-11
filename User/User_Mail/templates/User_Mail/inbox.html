@@ -6,6 +6,7 @@
 
         <meta charset = 'UTF-8'>
         <meta name = 'viewport' content = 'width = device-width, initial-scale = 1'>
+        <meta http-equiv="refresh" content="30">
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
@@ -18,8 +19,6 @@
         <!-- Latest compiled JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         
-
-
     </head>
 <body>
 
@@ -58,24 +57,60 @@
                     <a href = "{{url_for('user_profile_bp.logout')}}" class = 'nav-link'>Logout</a>
                 </li>
                 <li class = 'nav-item'>
-                    <a href = '#' class = 'nav-link'>Contact US</a>
+                    <a href = "{{url_for('user_profile_bp.contact_us')}}" class = 'nav-link'>Contact US</a>
                 </li>
             </ul>
         </div>
         <div class = "row">
             <h2>Inbox</h2>
         </div>  
+
+        <div class = "row">
+            <input type = "text" id = "searchBar" class = "form-control" placeholder = "Search with E-mail" style = "margin: 20px;">
+        </div>
     <div>
+        {% with messages = get_flashed_messages(category_filter = ["welcoming_user"]) %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class = "modal fade" role = "dialog" id = "welcomeModal">
+                    <div class = "modal-dialog modal-lg">
+                        <div class = "modal-content">
+                            <div class = "modal-header">
+                                <h2>Welcome <span class = "text-success">{{message}}</span></h2>
+                                    <button class = "close" data-dismiss = "modal">&times;</button>
+                            </div>
+                            <div class = "modal-dialog">
+                                <p>Hi, <span class = "text-success">{{message}}</span><br>
+                                Welcome to company Mailer.<br>
+                                This application allows you to send and receive E-mails from all over<br>
+                                the employees working in this company. You can see your inbox, outbox, trash and all mails.<br>
+                                To use any option of these you can access them from the navigation bar at the top of the page and <br>
+                                navigate through the application.<br>
+                                If there is any problem go to the contact us page and contact the admin.<br>
+                                Wish you a good exprience, have a nice day.
+                                </p>
+                            </div>
+                            <div class = "modal-footer">
+                                <button class = "btn btn-primary" data-dismiss = "modal">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
        <ul class = "list-group list-group-flush">
         {%for mail in inbox_mails%}
            <li class = "list-group-item">
                <p style = 'padding-bottom: 10px;'>
                 {% if mail['mail_seen']%}
-                <span class = 'badge badge-dark' style = 'display:inline;'>inbox</span>
+                <span class = 'badge badge-secondary' style = 'display:inline;'>inbox</span>
                 {% else %}
                     <span class = 'badge badge-danger'>inbox</span>
                 {% endif %}
-                <strong style = "margin-left: 20px;"> {{mail['sender_mail']}}</strong>
+                <a href = "{{url_for('user_mail_bp.compose_to_email', user_mail = mail['sender_mail'])}}" style = "color: black;">
+                    <strong style = "margin-left: 20px;" id = "userMail"> {{mail['sender_mail']}}</strong>
+                </a>
                 <span style = 'margin-left: 50px;margin-right:50px;' id = "mailSubject">{{mail['mail_subject']}}</span> 
                 <a href = "{{url_for('user_mail_bp.inbox_to_trash', mail_id = mail['mail_id'])}}" class = "btn btn-primary float-right" style = "margin-left: 10px;">Trash</a>
                 <a href = "{{url_for('user_mail_bp.view_mail', mail_id = mail['mail_id'])}}"
@@ -87,5 +122,32 @@
        </ul>
     </div>
     <script src = "{{url_for('static', filename = 'js/subjectShortner.js')}}"></script>
+    <script>
+        document.querySelector("body").onload = () => {
+            $("#welcomeModal").modal();
+        }
+    </script>
+
+         <script>
+        setInterval(updateServer, 5000);
+function updateServer()
+{
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function()
+    {
+        if(this.readyState == 4 && this.status == 200)
+        {
+            
+        }
+    };
+
+    xhttp.open("GET", "{{url_for('user_profile_bp.user_activity')}}", true)
+    xhttp.send();
+}
+    </script>
+    
+
+    <script src = "{{url_for('static', filename = 'js/searchBar.js')}}"></script>
+
 </body>
 </html>
