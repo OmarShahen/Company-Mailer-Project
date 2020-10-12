@@ -116,6 +116,10 @@ def auto_redirect(user_email, user_password):
         return render_template("Forms/userPage.html",user_name = get_user_name(user_email))
 
 
+@forms_bp.route('/waiting-page/<user_name>')
+def waiting_page(user_name):
+    return render_template("Forms/waitingPage.html", user_name = user_name)
+
 @forms_bp.route('/Validate-Registration', methods = ["POST"]) #Creating User
 def validation():
 
@@ -138,7 +142,7 @@ def validation():
     contact = request.form['contact']
     account_creation_date = datetime.datetime.now()
 
-    data_query = """INSERT INTO user (user_name, user_email, user_password, user_gender, user_date_of_birth,
+    data_query = """INSERT INTO waiting_list (user_name, user_email, user_password, user_gender, user_date_of_birth,
                     user_city, user_country, user_contact, user_account_creation_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?); """
     user_data = (name, email, password,
     gender, date_of_birth, city, country,
@@ -148,22 +152,7 @@ def validation():
     sqlite_connection.commit()
     sqlite_connection.close()
 
-    user_record = {
-                    "name": name,
-                    "email": email,
-                    "password": password,
-                    "gender": gender,
-                    "date_of_birth": date_of_birth,
-                    "city": city,
-                    "country": country,
-                    "contact": contact,
-                    "account_creation_date": account_creation_date
-                    }
-             
-    session['name'] = name
-    session['email'] = email
-    flash(name.upper(), "welcoming_user")
-    return redirect(url_for("user_mail_bp.see_inbox"))
+    return redirect(url_for('forms_bp.waiting_page', user_name = name))
 
 @forms_bp.route("/emails-validator/<input_mail>")
 def email_validator(input_mail):
@@ -181,7 +170,11 @@ def email_validator(input_mail):
     response_message = {"message": "valid mail name", "valid": True}
     return jsonify(response_message)
 
-        
+@forms_bp.route("/forgot-password", methods = ["POST"])
+def forgot_password():
+    user_email = request.form.get('userFmail')
+    print(user_email)
+    return "DONE"
     
 
 

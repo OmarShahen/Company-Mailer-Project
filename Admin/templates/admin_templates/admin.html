@@ -16,6 +16,13 @@
     
         <!-- Latest compiled JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <style>
+            li{
+                display: inline;
+            }
+
+        </style>
         
     </head>
     <body>
@@ -53,6 +60,11 @@
                         </div>
                     </div>
                 </div>
+                <div class = "row" style = "margin-left: auto;margin-top: 5px;margin-bottom: 5px;">
+                        <button class = "btn btn-success btn-sm" style = "margin-right: 20px;" data-toggle = "modal" data-target = "#adminForm">Add New Admin</button>
+                        <a href = "{{url_for('admin_bp.waiting_requests')}}" style = "margin-right: 20px;" class = "btn btn-primary">Requests <span class = "badge badge-pill badge-secondary" id = "waitingRequests"> {{waiting_requests}}</span></a>
+                        <a href = "{{url_for('forms_bp.login_form_page')}}" class = "btn btn-primary" style = "margin-right: 20px;">Logout</a>
+                    </div>
                 <table class = "table">
                     <thead>
                         <tr>
@@ -61,7 +73,6 @@
                             <th>E-mail</th>
                             <th><a href = "#" class = "text-primary" id = "statusButton">Status</a></th>
                             <th><a href = "#" class = "text-primary" id = "showAuthorizationButton">Hide Authorization</a></th>
-                            <th><button class = "btn btn-success btn-sm" data-toggle = "modal" data-target = "#adminForm">Add New Admin</button></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,7 +91,7 @@
                             {% else %}
                                 <td><a href = "{{url_for('admin_bp.admin_authorize', user_mail = user['user_email'])}}" class = "btn btn-success btn-sm" id = "authorizationButton">authorize</a></td>
                             {% endif %}
-                            <td></td>
+
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -122,10 +133,11 @@
                 if(this.readyState == 4 && this.status == 200)
                 {
                     serverStatusRespond = JSON.parse(this.responseText);
+                    document.querySelector("#waitingRequests").innerHTML = serverStatusRespond["waiting_list"]
                     
                     for(let i=0;i<userStatus.length;i++)
                     {
-                        if(serverStatusRespond[i] == true)
+                        if(serverStatusRespond["users_status"][i] == true)
                         {
                             userStatus[i].innerHTML = "online";
                             userStatus[i].className = "text-success";

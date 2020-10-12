@@ -31,6 +31,28 @@
         <div class = "card-header">
             <h4 class = "float-center">Mail Service</h4>
         </div>
+        <div class = "modal fade" role = "dialog" id = "forgotMail">
+            <div class = "modal-dialog ">
+                <div class = "modal-content">
+                    <div class = "modal-header">
+                        <h4>Forgot Password</h4>
+                        <button class = "close" data-dismiss = "modal">&times;</button>
+                    </div>
+                    <div class = "modal-body">
+                        <form action = "{{url_for('forms_bp.forgot_password')}}" method = "POST">
+                        <div class = "form-group">
+                            <label for = "fMailField">Send Password Of:</label>
+                            <input type = "email" name = "userFmail" id = "fMailField" placeholder = "Enter E-mail..." class = "form-control"/>
+                            <input type = "submit" value = "Send Password" style = "margin-top: 20px;" class = "btn btn-primary">
+                        </div>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
         <div class = "card-body container-fluid">
             <div id = "alertMessage">
             </div>
@@ -52,6 +74,7 @@
         <div class = "form-group">
                 <input type = "submit" value = "Login" class = "btn btn-primary" style = "margin: 20px;" id = "submitButton" onclick = "makeCookies()">
                 <a href = "/RegisterationForm" class = "btn btn-primary" style = "margin: 20px;">SignUP!</a> 
+                <a href = "#" style = "margin-right: 20px;" data-toggle = "modal" data-target = "#forgotMail">Forgot password</a>
         </div>
         </form>
         </div>
