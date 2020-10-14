@@ -96,6 +96,7 @@
                     <label for = "user_contact">Contact</label>
                 </div>
                 <div class = "row" style = "margin: 20px;">
+                    <span id = "phoneValidationMessage" class = "text-danger" style = "display: none;"></span>
                     <input type = "text" name = "contact" id = "user_contact" placeholder = "Contact" class = "form-control" required>
                 </div>
                 <div class = "row" style = "margin: 20px;">
@@ -139,10 +140,51 @@
                     }
                 };
                 xhttp.open("GET", "/emails-validator/" + document.querySelector("#user_email").value, true);
-                console.log("Made it here");
                 xhttp.send();
             });
             
+        </script>
+
+        <script>
+            document.querySelector("#user_contact").addEventListener("keyup", () => {
+                console.log("Sent");
+                let phoneField = document.querySelector("#user_contact").value;
+                if(phoneField == "")
+                {
+                    return;
+                }
+                let xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function()
+                {
+                    if(this.readyState == 4 && this.status == 200)
+                    {
+                        serverResponse = JSON.parse(this.responseText);
+                        if(serverResponse["valid"] == false)
+                        {
+                            document.querySelector("#phoneValidationMessage").innerHTML = serverResponse["message"];
+                            document.querySelector("#phoneValidationMessage").style.display = "block";
+                        }else{
+                            document.querySelector("#phoneValidationMessage").style.display = "none";
+                        }
+
+                    }
+                };
+                xhttp.open("GET", "/phone-number/validator/" + phoneField, true);
+                xhttp.send();
+            });
+        </script>
+
+        <script>
+            document.querySelector("#submitButton").addEventListener("click", (event) => {
+                let phoneAlert = document.querySelector("#phoneValidationMessage").innerHTML;
+                let mailAlert = document.querySelector("#alertMail").innerHTML;
+
+                if(mailAlert == "this mail is taken" || phoneAlert != "")
+                {
+                    event.preventDefault();
+                }        
+
+            });
         </script>
 </body>
 </html>

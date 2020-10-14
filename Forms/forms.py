@@ -51,6 +51,30 @@ def get_user_name(user_email):
     return user_name
 
 
+def phone_number_validator(phone_number):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_users_phones_query = "SELECT user_contact FROM user;"
+    select_admins_phones_query = "SELECT admin_phone FROM admin;"
+    select_waiting_users_phones_query = "SELECT user_contact FROM waiting_list;"
+    db_users_phones = sqlite_connection.execute(select_users_phones_query)
+    db_admins_phones = sqlite_connection.execute(select_admins_phones_query)
+    db_waiting_phones = sqlite_connection.execute(select_waiting_users_phones_query)
+    all_phones = []
+    for phone in db_users_phones:
+        all_phones.append(phone[0])
+    for phone in db_admins_phones:
+        all_phones.append(phone[0])
+    for phone in db_waiting_phones:
+        all_phones.append(phone[0])
+
+    for phone in all_phones:
+        if phone_number == str(phone):
+            return False
+    return True
+
+
+
+
 @forms_bp.route('/')
 @forms_bp.route('/LoginForm') #LoginForm
 def login_form_page():
@@ -161,15 +185,41 @@ def email_validator(input_mail):
         input_mail = input_mail + "@"
     print(input_mail)
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
-    select_all_mails_query = """SELECT user_email FROM user;"""
-    db_all_mails = sqlite_connection.execute(select_all_mails_query)
-    for mail in db_all_mails:
+    
+    select_users_mails_query = """SELECT user_email FROM user;"""
+    select_admins_mails_query = """SELECT admin_email FROM admin;"""
+    select_waiting_users_mails_query = """SELECT user_email FROM waiting_list;"""
+    db_users_mails = sqlite_connection.execute(select_users_mails_query)
+    db_admins_mails = sqlite_connection.execute(select_admins_mails_query)
+    db_waiting_mails = sqlite_connection.execute(select_waiting_users_mails_query)
+    all_mails = []
+    for mail in db_users_mails:
+        all_mails.append(mail[0])
+    for mail in db_admins_mails:
+        all_mails.append(mail[0])
+    for mail in db_waiting_mails:
+        all_mails.append(mail[0])
 
-        if input_mail.split("@")[0] == mail[0].split("@")[0]:
+    for mail in all_mails:
+        if input_mail.split("@")[0] == mail.split("@")[0]:
             response_message = {"message": "this mail is taken", "valid": False}
             return jsonify(response_message)
     response_message = {"message": "valid mail name", "valid": True}
     return jsonify(response_message)
+
+@forms_bp.route("/phone-number/validator/<phone_number>")
+def phone_validator(phone_number):
+    valid = phone_number_validator(phone_number)
+    response_message = {}
+    if valid == True:
+        response_message["valid"] = True
+        return jsonify(response_message)
+    else:
+        response_message["valid"] = False
+        response_message["message"] = "this number is taken"
+        return jsonify(response_message)
+
+
 
 @forms_bp.route("/forgot-password", methods = ["POST"])
 def forgot_password():
@@ -186,6 +236,7 @@ def forgot_password():
         server.sendmail(sender_mail, receiver_mail, message)
         print("Done")
     return "DONE"
+
 
     
 
