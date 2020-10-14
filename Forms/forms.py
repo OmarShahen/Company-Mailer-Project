@@ -5,7 +5,8 @@ import sqlite3
 import datetime
 from flask_bcrypt import Bcrypt
 import json
-
+import smtplib, ssl
+import os
 
 
 forms_bp = Blueprint('forms_bp', __name__, template_folder = 'templates', static_folder = 'static')
@@ -172,9 +173,20 @@ def email_validator(input_mail):
 
 @forms_bp.route("/forgot-password", methods = ["POST"])
 def forgot_password():
-    user_email = request.form.get('userFmail')
-    print(user_email)
+    sender_mail = "mailerservices365@gmail.com"
+    sender_password = "MailerService77"
+    receiver_mail = request.form.get('userFmail')
+    message = """Doksh 5wl
+    
+    
+    This is the body of the message"""
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context = context) as server:
+        server.login(sender_mail, sender_password)
+        server.sendmail(sender_mail, receiver_mail, message)
+        print("Done")
     return "DONE"
+
     
 
 
