@@ -8,6 +8,9 @@ class config:
     ALLOWED_EXTENSIONS = ['PDF', 'XLSX']
     ATTACHMENT_PHOTOS = 'static/images/'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+    APP_MAIL = "mailerservices365@gmail.com"
+    APP_MAIL_PASSWORD = "MailerService77"
+    APP_PORT = 465
 
 class prod_config(config):
     FLASK_ENV = 'production'

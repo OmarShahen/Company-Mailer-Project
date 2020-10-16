@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, session, request, redirect, url_for, flash, jsonify, current_app
 from admin import admin
 from creating_users import allUsers, adminOfApplication
 import sqlite3
@@ -7,7 +7,9 @@ from flask_bcrypt import Bcrypt
 import json
 import smtplib, ssl
 import os
-
+import random
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 forms_bp = Blueprint('forms_bp', __name__, template_folder = 'templates', static_folder = 'static')
 
@@ -72,6 +74,25 @@ def phone_number_validator(phone_number):
             return False
     return True
 
+def activate_verfication_code(verfication_code, birth_date, user_email):
+    expiration_date = datetime(
+        birth_date.year,
+        birth_date.month,
+        birth_date.day,
+        birth_date.hour,
+        birth_date.minute,
+        birth_date.second + 60,
+        birth_date.microsecond
+    )
+   
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    insert_verfication_code_query = """INSERT INTO verfication_codes(user_email, birth_date,
+                                        expiration_date) VALUES(?, ?, ?);"""
+    values = (user_email, str(birth_date), str(expiration_date))
+    sqlite_connection.execute(insert_verfication_code_query, values)
+    sqlite_connection.commit()
+    sqlite_connection.close()
+    
 
 
 
@@ -221,21 +242,51 @@ def phone_validator(phone_number):
 
 
 
-@forms_bp.route("/forgot-password", methods = ["POST"])
+@forms_bp.route("/forgot-password", methods = ["POST", "GET"])
 def forgot_password():
-    sender_mail = "mailerservices365@gmail.com"
-    sender_password = "MailerService77"
-    receiver_mail = request.form.get('userFmail')
-    message = """Doksh 5wl
-    
-    
-    This is the body of the message"""
+    verfication_code = random.randrange(10000, 100000)
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Verfication Code"
+    message["To"] = request.form.get("userFmail")
+    message["From"] = current_app.config["APP_MAIL"]
+    text_message = "Your Verfication Code: " + str(verfication_code)
+    html_message = f"""<html>
+    <body>
+        <p>Your verfication code: <strong>{verfication_code}</strong>
+    </body></html>"""
+    part1 = MIMEText(text_message, "plain")
+    part2 = MIMEText(html_message, "html")
+    message.attach(part1)
+    message.attach(part2)
     context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context = context) as server:
-        server.login(sender_mail, sender_password)
-        server.sendmail(sender_mail, receiver_mail, message)
-        print("Done")
-    return "DONE"
+    with smtplib.SMTP_SSL("smtp.gmail.com", current_app.config["APP_PORT"], context = context) as server:
+        server.login(current_app.config["APP_MAIL"], current_app.config["APP_MAIL_PASSWORD"])
+        server.sendmail(current_app.config["APP_MAIL"], request.form.get("userFmail"),message.as_string())
+    return render_template("Forms/verficationCode.html", user_mail = request.form.get("userFmail"))
+    
+@forms_bp.route("/resend-verfication-code/<receiver_mail>")
+def resend_verfication_code(receiver_mail):
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Verfication Code"
+    message["To"] = receiver_mail
+    message["From"] = current_app.config["APP_MAIL"]
+    text_message = "Your Verfication Code: " + str(verfication_code)
+    html_message = f"""<html>
+    <body>
+        <p>Your verfication code: <strong>{verfication_code}</strong>
+    </body></html>"""
+    part1 = MIMEText(text_message, "plain")
+    part2 = MIMEText(html_message, "html")
+    message.attach(part1)
+    message.attach(part2)
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", current_app.config["APP_PORT"], context = context) as server:
+        server.login(current_app.config["APP_MAIL"], current_app.config["APP_MAIL_PASSWORD"])
+        server.sendmail(current_app.config["APP_MAIL"], receiver_mail, message.as_string())
+        verfication_code = random.randrange(10000, 100000)
+        activate_verfication_code(verfication_code, datetime.now, receiver_mail)
+    return render_template("Forms/verficationCode.html", user_mail = receiver_mail)
+
 
 
     
