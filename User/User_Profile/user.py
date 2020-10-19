@@ -87,7 +87,7 @@ def view_all_users():
 def logout():
     sqlite_connection = sqlite3.connect('Mail_DB.db')
     user_update_query = """UPDATE user SET user_active = ? WHERE user_email = ?;"""
-    user_update_query_data = (0, session['email'])
+    user_update_query_data = (0, session["email"])
     sqlite_connection.execute(user_update_query, user_update_query_data)
     sqlite_connection.commit()
     sqlite_connection.close()

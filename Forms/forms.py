@@ -74,25 +74,32 @@ def phone_number_validator(phone_number):
             return False
     return True
 
-def activate_verfication_code(verfication_code, birth_date, user_email):
-    expiration_date = datetime(
-        birth_date.year,
-        birth_date.month,
-        birth_date.day,
-        birth_date.hour,
-        birth_date.minute,
-        birth_date.second + 60,
-        birth_date.microsecond
-    )
-   
+def activate_verfication_code(user_email, verfication_code):
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
-    insert_verfication_code_query = """INSERT INTO verfication_codes(user_email, birth_date,
-                                        expiration_date) VALUES(?, ?, ?);"""
-    values = (user_email, str(birth_date), str(expiration_date))
-    sqlite_connection.execute(insert_verfication_code_query, values)
+    insert_code_query = """INSERT INTO verfication_code(user_email, verfication_code, birth_date)
+                            VALUES(?, ?, ?);"""
+    values = (user_email, verfication_code, datetime.datetime.now())
+    sqlite_connection.execute(insert_code_query, values)
     sqlite_connection.commit()
     sqlite_connection.close()
-    
+    return
+
+def get_verfication_code_id(verfication_code):
+
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_query = "SELECT verfication_id FROM verfication_code WHERE verfication_code = ?;"
+    db_ver_code = sqlite_connection.execute(select_query, (verfication_code,))
+    verfication_id = 0
+    for ver_id in db_ver_code:
+        verfication_id = ver_id[0]
+    sqlite_connection.close()
+    print(verfication_id)
+    return verfication_id
+         
+def return_date_formate(date):
+    date_str_format = "%Y-%m-%d %H:%M:%S.%f"
+    return datetime.datetime.strptime(date, date_str_format)
+
 
 
 
@@ -242,7 +249,7 @@ def phone_validator(phone_number):
 
 
 
-@forms_bp.route("/forgot-password", methods = ["POST", "GET"])
+@forms_bp.route("/forgot-password", methods = ["POST"])
 def forgot_password():
     verfication_code = random.randrange(10000, 100000)
     message = MIMEMultipart("alternative")
@@ -259,13 +266,19 @@ def forgot_password():
     message.attach(part1)
     message.attach(part2)
     context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", current_app.config["APP_PORT"], context = context) as server:
-        server.login(current_app.config["APP_MAIL"], current_app.config["APP_MAIL_PASSWORD"])
-        server.sendmail(current_app.config["APP_MAIL"], request.form.get("userFmail"),message.as_string())
-    return render_template("Forms/verficationCode.html", user_mail = request.form.get("userFmail"))
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", current_app.config["APP_PORT"], context = context) as server:
+            server.login(current_app.config["APP_MAIL"], current_app.config["APP_MAIL_PASSWORD"])
+            server.sendmail(current_app.config["APP_MAIL"], request.form.get("userFmail"),message.as_string())
+            activate_verfication_code(request.form.get("userFmail"), verfication_code)
+    except Exception:
+        flash("Error occured! please check your internet connection", "gmail_error")
+        return redirect(url_for("forms_bp.login_form_page"))
+    return render_template("Forms/verficationCode.html", user_mail = request.form.get("userFmail"), ver_id = get_verfication_code_id(verfication_code))
     
 @forms_bp.route("/resend-verfication-code/<receiver_mail>")
 def resend_verfication_code(receiver_mail):
+    verfication_code = random.randrange(10000, 100000)
     message = MIMEMultipart("alternative")
     message["Subject"] = "Verfication Code"
     message["To"] = receiver_mail
@@ -283,11 +296,47 @@ def resend_verfication_code(receiver_mail):
     with smtplib.SMTP_SSL("smtp.gmail.com", current_app.config["APP_PORT"], context = context) as server:
         server.login(current_app.config["APP_MAIL"], current_app.config["APP_MAIL_PASSWORD"])
         server.sendmail(current_app.config["APP_MAIL"], receiver_mail, message.as_string())
-        verfication_code = random.randrange(10000, 100000)
-        activate_verfication_code(verfication_code, datetime.now, receiver_mail)
-    return render_template("Forms/verficationCode.html", user_mail = receiver_mail)
+    activate_verfication_code(receiver_mail, verfication_code)
+    return render_template("Forms/verficationCode.html", user_mail = receiver_mail, ver_id = get_verfication_code_id(verfication_code))
+
+@forms_bp.route("/verfiy-code/<user_mail>/<ver_id>", methods = ["POST"])
+def verfiy_code(user_mail, ver_id):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_ver_code_query = """SELECT verfication_code, birth_date FROM verfication_code WHERE verfication_id = ?;"""
+    db_ver_data = sqlite_connection.execute(select_ver_code_query, (ver_id,))
+    ver_code = {}
+    for ver_data in db_ver_data:
+        ver_code["verfication_code"] = ver_data[0]
+        ver_code["birth_date"] = return_date_formate(ver_data[1])
+    date_difference = datetime.datetime.now() - ver_code["birth_date"]
+    
+    if ver_code["verfication_code"] != int(request.form.get("verficationCodeField")) or date_difference.seconds > 60:
+        sqlite_connection.close()
+        return redirect(url_for("forms_bp.verfication_code_error", user_mail = user_mail))   
+    sqlite_connection.close()
+    return render_template("Forms/changePassword.html", user_mail = user_mail)
+
+@forms_bp.route("/Invalid-verfication-code/<user_mail>")
+def verfication_code_error(user_mail):
+    error_message = "Invalid verfication code"
+    return render_template("Forms/verficationCodeError.html", error_message = error_message, user_mail = user_mail)
+    
 
 
+
+
+
+@forms_bp.route("/change-user-password/<user_mail>", methods = ["POST"])
+def change_user_password(user_mail):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    update_password_query = "UPDATE user SET user_password = ? WHERE user_email = ?;"
+    new_hashed_password = bcrypt.generate_password_hash(request.form.get("newPassword")).decode("UTF-8")
+    update_password_values = (new_hashed_password, user_mail)
+    sqlite_connection.execute(update_password_query, update_password_values)
+    sqlite_connection.commit()
+    sqlite_connection.close()
+    session["email"] = user_mail
+    return redirect(url_for('user_mail_bp.see_inbox'))
 
     
 

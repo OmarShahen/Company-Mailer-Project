@@ -1,7 +1,10 @@
-from flask import Blueprint, request, render_template, url_for, jsonify, flash, redirect
+from flask import Blueprint, request, render_template, url_for, jsonify, flash, redirect, current_app
 import sqlite3
 from Forms.forms import bcrypt
 from datetime import datetime
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
 
@@ -174,4 +177,27 @@ def add_user(request_id):
     sqlite_connection.execute(insert_user_query, user_data)
     sqlite_connection.commit()
     sqlite_connection.close()
-    return redirect(url_for('admin_bp.waiting_requests'))
+
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Account Activation"
+    message["To"] = user_data_list[1]
+    message["From"] = current_app.config["APP_MAIL"]
+    plain_text_message = "Your account is Activated"
+    html_message = """<html>
+                        <body>
+                            <p>Your Account is <strong>Activated</strong></p>
+                        </body>
+                    </html>"""
+    part1 = MIMEText(plain_text_message, "plain")
+    part2 = MIMEText(html_message, "html")
+    message.attach(part1)
+    message.attach(part2)
+    context = ssl.create_default_context()
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", current_app.config["APP_PORT"], context = context) as server:
+            server.login(current_app.config["APP_MAIL"], current_app.config["APP_MAIL_PASSWORD"])
+            server.sendmail(current_app.config["APP_MAIL"], user_data_list[1], message.as_string())
+    except Exception:
+        pass
+    finally:
+        return redirect(url_for('admin_bp.waiting_requests'))

@@ -147,7 +147,6 @@
 
         <script>
             document.querySelector("#user_contact").addEventListener("keyup", () => {
-                console.log("Sent");
                 let phoneField = document.querySelector("#user_contact").value;
                 if(phoneField == "")
                 {
@@ -165,6 +164,7 @@
                             document.querySelector("#phoneValidationMessage").style.display = "block";
                         }else{
                             document.querySelector("#phoneValidationMessage").style.display = "none";
+                            document.querySelector("#phoneValidationMessage").innerHTML = "";
                         }
 
                     }
@@ -182,7 +182,10 @@
                 if(mailAlert == "this mail is taken" || phoneAlert != "")
                 {
                     event.preventDefault();
-                }        
+                }else
+                {
+                    document.querySelector("#submitButton").submit();
+                }
             });
         </script>
 </body>
