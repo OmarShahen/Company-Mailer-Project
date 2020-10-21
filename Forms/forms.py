@@ -293,10 +293,14 @@ def resend_verfication_code(receiver_mail):
     message.attach(part1)
     message.attach(part2)
     context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", current_app.config["APP_PORT"], context = context) as server:
-        server.login(current_app.config["APP_MAIL"], current_app.config["APP_MAIL_PASSWORD"])
-        server.sendmail(current_app.config["APP_MAIL"], receiver_mail, message.as_string())
-    activate_verfication_code(receiver_mail, verfication_code)
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", current_app.config["APP_PORT"], context = context) as server:
+            server.login(current_app.config["APP_MAIL"], current_app.config["APP_MAIL_PASSWORD"])
+            server.sendmail(current_app.config["APP_MAIL"], receiver_mail, message.as_string())
+            activate_verfication_code(receiver_mail, verfication_code)
+    except Exception:
+        flash("Error occured! please check your internet connection", "gmail_error")
+        return redirect(url_for("forms_bp.login_form_page"))
     return render_template("Forms/verficationCode.html", user_mail = receiver_mail, ver_id = get_verfication_code_id(verfication_code))
 
 @forms_bp.route("/verfiy-code/<user_mail>/<ver_id>", methods = ["POST"])
@@ -311,6 +315,9 @@ def verfiy_code(user_mail, ver_id):
     date_difference = datetime.datetime.now() - ver_code["birth_date"]
     
     if ver_code["verfication_code"] != int(request.form.get("verficationCodeField")) or date_difference.seconds > 60:
+        delete_ver_code_query = "DELETE FROM verfication_code WHERE verfication_id = ?;"
+        sqlite_connection.execute(delete_ver_code_query, (ver_id,))
+        sqlite_connection.commit()
         sqlite_connection.close()
         return redirect(url_for("forms_bp.verfication_code_error", user_mail = user_mail))   
     sqlite_connection.close()
@@ -321,6 +328,15 @@ def verfication_code_error(user_mail):
     error_message = "Invalid verfication code"
     return render_template("Forms/verficationCodeError.html", error_message = error_message, user_mail = user_mail)
     
+
+@forms_bp.route("/verfication-code/time-up/<ver_id>")
+def verfication_code_time_up(ver_id):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    delete_ver_code_query = "DELETE FROM verfication_code WHERE verfication_id = ?;"
+    sqlite_connection.execute(delete_ver_code_query, (ver_id,))
+    sqlite_connection.commit()
+    sqlite_connection.close()
+    return jsonify({"removed": True})
 
 
 

@@ -68,6 +68,17 @@
                     document.querySelector("#verficationField").disabled = true;
                     document.querySelector("#submitBtn").addEventListener("click", (event) => {event.preventDefault();})
                     clearInterval(beginTimer);
+
+                    let xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function ()
+                    {
+                        if(this.readyState == 4 && this.status == 200)
+                        {
+                            this.responseText;
+                        }
+                    };
+                    xhttp.open("GET", "{{url_for('forms_bp.verfication_code_time_up', ver_id = ver_id)}}", true);
+                    xhttp.send();
                 }
                 
             }
