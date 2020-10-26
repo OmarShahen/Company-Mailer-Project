@@ -19,7 +19,7 @@
     <body>
         <div class = "container-fluid">
             <div class = "row bg-dark text-white">
-                <h1>Mail Services</h1>
+                <h1>Mailer Services</h1>
             </div>
             <div>
                 <ul class = "nav nav-justified bg-light">
@@ -28,7 +28,7 @@
                         <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
                     </li>
                     <li class = 'nav-item'>
-                        <a href = "{{url_for('user_mail_bp.see_inbox')}}" class = 'nav-link'>Inbox</a>
+                        <a href = "{{url_for('user_mail_bp.see_inbox')}}" class = 'nav-link'>Inbox <span id = "unseenMails" class = "badge badge-pill badge-danger" style = "margin-left: 5px;"></span></a>
                     </li>
                     <li class = 'nav-item'>
                         <a href = "{{url_for('user_mail_bp.trash')}}" class = 'nav-link'>Trash</a>
@@ -73,5 +73,24 @@
                 </tbody>
             </table>
         </div>
+        <script>
+            getUnseenMails();
+            setInterval(getUnseenMails, 5000);
+    
+            function getUnseenMails()
+            {
+                let xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function()
+                {
+                    if(this.status == 200 && this.readyState == 4)
+                    {
+                        let unseenMails = JSON.parse(this.responseText)["unseen_mails"];
+                        document.querySelector("#unseenMails").innerHTML = unseenMails;
+                    }
+                };
+                xhttp.open("GET", "{{url_for('user_mail_bp.unseen_inbox', user_mail = user_mail)}}", true);
+                xhttp.send();
+            }
+        </script>
     </body>
 </html>

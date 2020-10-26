@@ -24,7 +24,7 @@
 
     <div class = "container-fluid">
         <div class = "row text-white bg-dark">
-            <h1>Mail Services</h1>
+            <h1>Mailer Services</h1>
         </div>
         <div>
             <ul class = "nav nav-justified bg-light">
@@ -33,7 +33,7 @@
                     <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
                 </li>
                 <li class = 'nav-item'>
-                    <a href = "{{url_for('user_mail_bp.see_inbox')}}" class = 'nav-link'>Inbox</a>
+                    <a href = "{{url_for('user_mail_bp.see_inbox')}}" class = 'nav-link'>Inbox<span id = "unseenMails" class = "badge badge-pill badge-danger" style = "margin-left: 5px;"></span></a>
                 </li>
                 <li class = 'nav-item'>
                     <a href = "{{url_for('user_mail_bp.trash')}}" class = 'nav-link'>Trash</a>
@@ -99,6 +99,30 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
+        <div class = "modal fade" role = "dialog" id = "welcomeModal">
+            <div class = "modal-dialog modal-lg">
+                <div class = "modal-content">
+                    <div class = "modal-header">
+                        <h2>Welcome <span class = "text-success">{{user_name}}</span></h2>
+                            <button class = "close" data-dismiss = "modal">&times;</button>
+                    </div>
+                    <div class = "modal-dialog">
+                        <p>Hi, <span class = "text-success">{{user_name}}</span><br>
+                        Welcome to Mailer.<br>
+                        This application allows you to send and receive E-mails from all over<br>
+                        the employees working in this company. You can see your inbox, outbox, trash and all mails.<br>
+                        To use any option of these you can access them from the navigation bar at the top of the page and <br>
+                        navigate through the application.<br>
+                        If there is any problem go to the contact us page and contact the admin.<br>
+                        Wish you a good exprience, have a nice day.
+                        </p>
+                    </div>
+                    <div class = "modal-footer">
+                        <button class = "btn btn-primary" data-dismiss = "modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
        <ul class = "list-group list-group-flush" id = "inboxList">
         {%for mail in inbox_mails%}
            <li class = "list-group-item">
@@ -123,6 +147,31 @@
     </div>
     <script src = "{{url_for('static', filename = 'js/subjectShortner.js')}}"></script>
     <script src = "{{url_for('static', filename = 'js/searchBar.js')}}"></script>
+    <script>
+        getUnseenMails();
+        setInterval(getUnseenMails, 5000);
 
+        function getUnseenMails()
+        {
+            let xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function()
+            {
+                if(this.status == 200 && this.readyState == 4)
+                {
+                    let unseenMails = JSON.parse(this.responseText)["unseen_mails"];
+                    document.querySelector("#unseenMails").innerHTML = unseenMails;
+                }
+            };
+            xhttp.open("GET", "{{url_for('user_mail_bp.unseen_inbox', user_mail = user_mail)}}", true);
+            xhttp.send();
+        }
+    </script>
+    <script>
+        if(!localStorage.getItem("firstVisit"))
+        {
+            $("#welcomeModal").modal();
+            localStorage.setItem("firstVisit", JSON.stringify({visited: true}));
+        }
+    </script>
 </body>
 </html>

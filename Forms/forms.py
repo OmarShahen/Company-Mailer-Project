@@ -100,6 +100,15 @@ def return_date_formate(date):
     date_str_format = "%Y-%m-%d %H:%M:%S.%f"
     return datetime.datetime.strptime(date, date_str_format)
 
+def check_mail_exist(user_mail):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_mail_query = "SELECT user_email FROM user WHERE user_email = ?;"
+    db_output = sqlite_connection.execute(select_mail_query, (user_mail,)).fetchall()
+    if len(db_output) == 0:
+        return False
+    return True
+
+
 
 
 
@@ -169,9 +178,9 @@ def auto_redirect(user_email, user_password):
         return render_template("Forms/userPage.html",user_name = get_user_name(user_email))
 
 
-@forms_bp.route('/waiting-page/<user_name>')
-def waiting_page(user_name):
-    return render_template("Forms/waitingPage.html", user_name = user_name)
+@forms_bp.route('/waiting-page/<user_name>/<user_mail>')
+def waiting_page(user_name, user_mail):
+    return render_template("Forms/waitingPage.html", user_name = user_name, user_mail = user_mail)
 
 @forms_bp.route('/Validate-Registration', methods = ["POST"]) #Creating User
 def validation():
@@ -205,7 +214,7 @@ def validation():
     sqlite_connection.commit()
     sqlite_connection.close()
 
-    return redirect(url_for('forms_bp.waiting_page', user_name = name))
+    return redirect(url_for('forms_bp.waiting_page', user_name = name, user_mail = request.form['email']))
 
 @forms_bp.route("/emails-validator/<input_mail>")
 def email_validator(input_mail):
@@ -251,6 +260,9 @@ def phone_validator(phone_number):
 
 @forms_bp.route("/forgot-password", methods = ["POST"])
 def forgot_password():
+    if check_mail_exist(request.form.get("userFmail")) == False:
+        flash("Invalid E-mail, Enter the one you registered with.", "invalid_mail")
+        return redirect(url_for('forms_bp.login_form_page'))
     verfication_code = random.randrange(10000, 100000)
     message = MIMEMultipart("alternative")
     message["Subject"] = "Verfication Code"
@@ -272,7 +284,7 @@ def forgot_password():
             server.sendmail(current_app.config["APP_MAIL"], request.form.get("userFmail"),message.as_string())
             activate_verfication_code(request.form.get("userFmail"), verfication_code)
     except Exception:
-        flash("Error occured! please check your internet connection", "gmail_error")
+        flash("Can't send the verfication code, please check your internet connection", "gmail_error")
         return redirect(url_for("forms_bp.login_form_page"))
     return render_template("Forms/verficationCode.html", user_mail = request.form.get("userFmail"), ver_id = get_verfication_code_id(verfication_code))
     
@@ -319,7 +331,10 @@ def verfiy_code(user_mail, ver_id):
         sqlite_connection.execute(delete_ver_code_query, (ver_id,))
         sqlite_connection.commit()
         sqlite_connection.close()
-        return redirect(url_for("forms_bp.verfication_code_error", user_mail = user_mail))   
+        return redirect(url_for("forms_bp.verfication_code_error", user_mail = user_mail)) 
+    delete_ver_code_query = "DELETE FROM verfication_code WHERE verfication_id = ?;"
+    sqlite_connection.execute(delete_ver_code_query, (ver_id,))
+    sqlite_connection.commit()  
     sqlite_connection.close()
     return render_template("Forms/changePassword.html", user_mail = user_mail)
 
@@ -340,8 +355,6 @@ def verfication_code_time_up(ver_id):
 
 
 
-
-
 @forms_bp.route("/change-user-password/<user_mail>", methods = ["POST"])
 def change_user_password(user_mail):
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
@@ -355,6 +368,28 @@ def change_user_password(user_mail):
     return redirect(url_for('user_mail_bp.see_inbox'))
 
     
+@forms_bp.route("/request-accepted/redirect-user/<user_mail>")
+def request_accepted(user_mail):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_users = "SELECT user_email FROM user WHERE user_email = ?;"
+    db_users = sqlite_connection.execute(select_users, (user_mail,)).fetchall()
+    if len(db_users) == 0:
+        sqlite_connection.close()
+        return jsonify({"accepted": False})
+    else:
+        sqlite_connection.close()
+        session["email"] = user_mail
+        return jsonify({"accepted": True})
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -64,6 +64,15 @@ def check_file_extension(files):
         if splite_file[1].upper() not in current_app.config['ALLOWED_EXTENSIONS']:
             return False
     return True
+
+def validate_file_extension(file):
+    if '.' not in file:
+        return False
+    splite_file = file.split('.')
+    if splite_file[1].upper() not in current_app.config['ALLOWED_EXTENSIONS']:
+        return False
+    return True
+
     
 def month_with_day(full_date):
     date = datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S.%f')
@@ -186,20 +195,19 @@ user_mail_bp = Blueprint('user_mail_bp', __name__, template_folder = 'templates'
 
 @user_mail_bp.route('/compose-mail')
 def compose_email():
-    return render_template('User_Mail/composeEmail.html',userName = session['email'])
+    return render_template('User_Mail/composeEmail.html', max_length = current_app.config["MAX_CONTENT_LENGTH"], userName = session['email'], user_mail = session["email"])
 
 @user_mail_bp.route('/compose-mail/<user_mail>')
 def compose_to_email(user_mail):
     user = [user_mail]
-    print(user)
-    return render_template('User_Mail/composeEmail.html', userName = session['email'], to = user)
+    return render_template('User_Mail/composeEmail.html', max_length = current_app.config["MAX_CONTENT_LENGTH"], userName = session['email'], to = user, user_mail = session["email"])
 
 @user_mail_bp.route("/compose-mail/multiple-users", methods = ["POST"])
 def send_multi_users():
     allReceiversMails = json.loads(request.form["allMail"])
     if(len(allReceiversMails) == 1):
         return redirect(url_for("user_mail_bp.compose_to_email", user_mail = allReceiversMails[0]))
-    return render_template("User_Mail/composeEmail.html", userName = session['email'], to = allReceiversMails)
+    return render_template("User_Mail/composeEmail.html", userName = session['email'], to = allReceiversMails, max_length = current_app.config["MAX_CONTENT_LENGTH"])
 
 @user_mail_bp.route('/sending-mail', methods = ['POST', 'GET'])
 def sending_email():
@@ -255,18 +263,39 @@ def add_multiple_receivers():
 @user_mail_bp.route("/outbox")
 def see_outbox():
     outbox = return_outbox(get_user_id(session["email"]))
-    return render_template("User_Mail/outbox.html", outbox_mails = outbox) 
+    return render_template("User_Mail/outbox.html", outbox_mails = outbox, user_mail = session["email"]) 
 
 
 @user_mail_bp.route("/inbox")
 def see_inbox():
     inbox = return_inbox(get_user_id(session["email"]))
-    return render_template("User_Mail/inbox.html", inbox_mails = inbox)
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_name = "SELECT user_name FROM user WHERE user_email = ?;"
+    db_user_name = sqlite_connection.execute(select_name, (session["email"],))
+    user_name = ""
+    for user in db_user_name:
+        user_name = user[0]
+    sqlite_connection.close()
+    return render_template("User_Mail/inbox.html", inbox_mails = inbox, user_mail = session["email"], user_name = user_name)
+
+@user_mail_bp.route("/unseen/inbox/<user_mail>")
+def unseen_inbox(user_mail):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_unseen_mail = """SELECT mail_id FROM mail WHERE receiver_id = ? AND mail_seen = ? AND receiver_trashed = ?;"""
+    values = (get_user_id(user_mail), 0, 0)
+    db_unseen_mails = sqlite_connection.execute(select_unseen_mail, values)
+    counter = 0
+    for mail in db_unseen_mails:
+        counter += 1
+    sqlite_connection.close()
+    return jsonify({"unseen_mails": counter})
+
+
 
 @user_mail_bp.route("/view-mail/<mail_id>")
 def view_mail(mail_id):
     sqlite_connection = sqlite3.connect('MAIL_DB.db')
-    select_mail_query = """SELECT sender_id, mail_subject, mail_body, mail_date FROM mail WHERE mail_id = ?;"""
+    select_mail_query = """SELECT sender_id, mail_subject, mail_body, mail_date, mail_id FROM mail WHERE mail_id = ?;"""
     mail_record = sqlite_connection.execute(select_mail_query, (mail_id,))
     mail_data = {}
     for data in mail_record:
@@ -274,6 +303,7 @@ def view_mail(mail_id):
         mail_data['mail_subject'] = data[1]
         mail_data['mail_body'] = data[2]
         mail_data['mail_date'] = remove_milli_seconds(data[3])
+        mail_data['mail_id'] = data[4]
     
     if check_attachment_exist(mail_id):
 
@@ -289,7 +319,20 @@ def view_mail(mail_id):
     sqlite_connection.execute(update_query, update_query_data)
     sqlite_connection.commit()
     sqlite_connection.close()
-    return render_template('User_Mail/view_mail.html', mail = mail_data)
+    return render_template('User_Mail/view_mail.html', mail = mail_data, user_mail = session["email"])
+
+@user_mail_bp.route("/view-mail/mail-body/<mail_id>")
+def get_mail_body(mail_id):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_mail_query = "SELECT mail_body FROM mail WHERE mail_id = ?;"
+    db_output = sqlite_connection.execute(select_mail_query, (mail_id,))
+    mail_body = ""
+    for mail in db_output:
+        mail_body = mail[0]
+    sqlite_connection.close()
+    return jsonify(mail_body)
+
+
 
 @user_mail_bp.route("/download-file/<file_name>")
 def download_file(file_name):
@@ -316,7 +359,7 @@ def see_all_mail():
     inbox = return_inbox(get_user_id(session["email"]))
     outbox = return_outbox(get_user_id(session["email"]))
     all_mail = sort_mails(inbox + outbox)
-    return render_template("User_Mail/view_all_mail.html", all_mail = all_mail, user_email = session['email'])
+    return render_template("User_Mail/view_all_mail.html", all_mail = all_mail, user_email = session["email"])
 
 
 @user_mail_bp.route("/trash/inbox/<mail_id>")
@@ -386,7 +429,7 @@ def trash():
    
     all_mail = sort_mails_by_date(inbox_trash + outbox_single_trash + outbox_multiple_trash)
     sqlite_connection.close()
-    return render_template("User_Mail/view_trash.html", all_mail = all_mail)
+    return render_template("User_Mail/view_trash.html", all_mail = all_mail, user_mail = session["email"])
 
 @user_mail_bp.route("/trash/outbox/<mail_id>")
 def outbox_to_trash(mail_id):
@@ -462,6 +505,22 @@ def recycle_trash(mail_id, mail_identity, outbox_status):
     sqlite_connection.commit()
     sqlite_connection.close()
     return redirect(url_for("user_mail_bp.trash"))
+
+
+@user_mail_bp.route("/validation/files", methods = ["POST"])
+def file_extensions_validation():
+    file_extensions = json.loads(request.args.get("fileExtensions"))
+    all_files = []
+    file_data = {}
+    for file in file_extensions:
+        file_data["file_name"] = file
+        if validate_file_extension(file) == False:
+            file_data["valid"] = False
+        else:
+            file_data["valid"] = True
+        all_files.append(file_data)
+        file_data = {}
+    return jsonify(all_files)
 
 
 
