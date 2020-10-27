@@ -108,7 +108,27 @@ def check_mail_exist(user_mail):
         return False
     return True
 
+def add_visit(user_mail):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_visit_value = "SELECT visits FROM user WHERE user_email = ?;"
+    db_visits = sqlite_connection.execute(select_visit_value, (user_mail,))
+    user_visits = 0
+    for vis in db_visits:
+        user_visits = vis[0]
+    update_query = "UPDATE user SET visits = ? WHERE user_email = ?;"
+    sqlite_connection.execute(update_query, (user_visits+1, user_mail))
+    sqlite_connection.commit()
+    sqlite_connection.close()
 
+def get_visits_number(user_mail):
+    sqlite_connection = sqlite3.connect("MAIL_DB.db")
+    select_visits = "SELECT visits FROM user WHERE user_email = ?;"
+    db_output = sqlite_connection.execute(select_visits, (user_mail,))
+    visits_number = 0
+    for vis in db_output:
+        visits_number = vis[0]
+    sqlite_connection.close()
+    return visits_number
 
 
 
@@ -121,7 +141,10 @@ def login_form_page():
 def registerForm():
     return render_template('Forms/RegisterForm.html')
 
-
+@forms_bp.route('/admin-as-user/visit')
+def admin_user_visit():
+    add_visit(session["email"])
+    return ""
 @forms_bp.route('/ValidLogin', methods = ["POST"]) #Check Validation
 def valid_login():
     if request.method == 'POST':
@@ -142,7 +165,7 @@ def valid_login():
         if check_admin_exist(email, password):
             session['email'] = email
             session['password'] = password
-            return redirect(url_for("admin_bp.admin_page"))
+            return render_template("Forms/adminUserPath.html")
         
         if check_user_exist(email, password) == False:
             flash("This Account doesnot Exist", "danger")
@@ -159,6 +182,7 @@ def valid_login():
         update_query_data = (1, email)
         sqlite_connection.execute(update_query, update_query_data)
         sqlite_connection.commit()
+        add_visit(email)
         return redirect(url_for("user_mail_bp.see_inbox"))
 
 @forms_bp.route('/validLogin/<user_email>/<user_password>', methods = ["POST"])

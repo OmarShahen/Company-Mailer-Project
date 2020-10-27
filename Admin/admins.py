@@ -1,10 +1,11 @@
 from flask import Blueprint, request, render_template, url_for, jsonify, flash, redirect, current_app
 import sqlite3
-from Forms.forms import bcrypt
+from Forms.forms import bcrypt, phone_number_validator
 from datetime import datetime
 import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+
 
 
 
@@ -96,6 +97,12 @@ def add_admin():
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
     add_admin_query = """INSERT INTO admin (admin_email, admin_password, admin_phone) VALUES(?, ?, ?);"""
     sqlite_connection.execute(add_admin_query, (admin_mail, admin_password, admin_phone))
+
+    add_user_query = """INSERT INTO user (user_name, user_email, user_password,
+                      user_gender, user_date_of_birth, user_contact, user_account_creation_date)
+                      VALUES(?, ?, ?, ?, ?, ?, ?);"""
+    add_user_values = ("admin", admin_mail, admin_password, "other", "none", admin_phone, datetime.now())
+    sqlite_connection.execute(add_user_query, add_user_values)
     sqlite_connection.commit()
     sqlite_connection.close()
     return redirect(url_for("admin_bp.admin_page")) 
@@ -116,12 +123,9 @@ def email_validator(input_mail):
 
 @admin_bp.route("/admin/phone-number-validator/<phone_number>")
 def phone_validator(phone_number):
-    sqlite_connection = sqlite3.connect("MAIL_DB.db")
-    select_phones_query = """SELECT admin_phone FROM admin;"""
-    db_phone_numbers = sqlite_connection.execute(select_phones_query)
-    for phone in db_phone_numbers:
-        if phone_number == phone[0]:
-            return jsonify("This number is taken")
+    print(phone_number_validator(phone_number))
+    if phone_number_validator(phone_number) == False:
+        return jsonify("This number is taken")
     return jsonify("")
 
 
