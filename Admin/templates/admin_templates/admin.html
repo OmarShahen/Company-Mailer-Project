@@ -28,7 +28,10 @@
     <body>
         <div class = "container-fluid">
             <div class = "row bg-dark text-white">
-                <h1>Mail Services</h1>
+                <h1>Mailer Services</h1>
+            </div>
+            <div id = "userStatusDiv" style = "display: none;">
+                <strong id = "userStatus"></strong>
             </div>
             <div class = "row">
                 <div class = "modal fade" role = "dialog" id = "adminForm">
@@ -48,6 +51,10 @@
                                     <div class = "form-group">
                                         <label for = "adminPassword">Admin Password: </label>
                                         <input type = "password" name = "adminPassword" id = "adminPassowrd" class = "form-control" required>
+                                        <div class = "custom-control custom-checkbox" style = "margin-top: 10px;">
+                                            <input type = "checkbox" class = "custom-control-input" id = "showOriginPassword">
+                                            <label for = "showOriginPassword" class = "custom-control-label">show password</label>
+                                        </div>
                                     </div>
                                     <div class = "form-group">
                                         <label for = "adminPhone">Admin Phone: </label>
@@ -157,7 +164,6 @@
                 let emailInputField= document.querySelector("#adminMail").value;
                 if(emailInputField == "")
                 {
-                    console.log("in the empty condition");
                     return
                 }
                 let xhttp = new XMLHttpRequest();
@@ -185,7 +191,8 @@
                 let phoneNumber = document.querySelector("#adminPhone").value;
                 if(phoneNumber.length < 11)
                 {
-                    return;
+                    document.querySelector("#alertPhone").style.display = "block";
+                    document.querySelector("#alertPhone").innerHTML = "";
                 }else
                 {
                     let xhttp = new XMLHttpRequest();
@@ -216,5 +223,19 @@
                 }
             });
         </script>
+
+        <script>
+            document.querySelector("#showOriginPassword").addEventListener("click", () => {
+                let input = document.querySelector("#adminPassowrd");
+                if(input.type == "password")
+                {
+                    input.type = "text";
+                }else
+                {
+                    input.type = "password";
+                }
+            });
+        </script>
+        <script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
     </body>
 </html>

@@ -32,7 +32,10 @@
     <body>
         <div class = "container-fluid">
         <div class = "row bg-dark text-white">
-            <h2>Mail Services</h2>
+            <h2>Mailer Services</h2>
+        </div>
+        <div id = "userStatusDiv" style = "display: none;">
+            <strong id = "userStatus"></strong>
         </div>
         <div>
             <ul class = "nav nav-justified bg-light">           
@@ -40,7 +43,7 @@
                     <a href = "{{url_for('user_mail_bp.compose_email')}}" class = 'nav-link'>Compose Email</a>
                 </li>
                 <li class = 'nav-item'>
-                    <a href = "{{url_for('user_mail_bp.see_inbox')}}" class = 'nav-link'>Inbox</a>
+                    <a href = "{{url_for('user_mail_bp.see_inbox')}}" class = 'nav-link'>Inbox<span id = "unseenMails" class = "badge badge-pill badge-danger" style = "margin-left: 5px;"></span></a>
                 </li>
                 <li class = 'nav-item'>
                     <a href = "{{url_for('user_mail_bp.trash')}}" class = 'nav-link'>Trash</a>
@@ -108,7 +111,7 @@
                         <label for = "user_email">Email:</label> 
                     </td>
                         <td>
-                            <input type="email" name = "user_email" value = "{{user['EMAIL']}}" id = "user_email" class = "form-control" required>
+                            <input type="email" name = "user_email" value = "{{user['EMAIL']}}" id = "user_email" class = "form-control" required disabled>
                         </td>
                 </tr>
                 <tr>
@@ -140,7 +143,7 @@
                         <label for = "user_contact">Contact:</label>
                     </td>
                         <td>
-                            <input type = "text" name = "user_contact" value ="{{user['CONTACT']}}" id = "user_contact" class = "form-control" required>
+                            <input type = "text" name = "user_contact" value ="{{user['CONTACT']}}" id = "user_contact" class = "form-control" required disabled>
                         </td>
                     </tr>
                 <tr>
@@ -170,5 +173,25 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
+        <script>
+            getUnseenMails();
+            setInterval(getUnseenMails, 5000);
+    
+            function getUnseenMails()
+            {
+                let xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function()
+                {
+                    if(this.status == 200 && this.readyState == 4)
+                    {
+                        let unseenMails = JSON.parse(this.responseText)["unseen_mails"];
+                        document.querySelector("#unseenMails").innerHTML = unseenMails;
+                    }
+                };
+                xhttp.open("GET", "{{url_for('user_mail_bp.unseen_inbox', user_mail = user_mail)}}", true);
+                xhttp.send();
+            }
+        </script>
+        <script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
     </body>
 </html>

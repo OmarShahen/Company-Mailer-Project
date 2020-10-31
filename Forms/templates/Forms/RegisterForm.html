@@ -22,7 +22,7 @@
 <body>
     <div class = "container-fluid">
         <div class = "row bg-dark text-white">
-            <h1>Mail Services</h1>
+            <h1>Mailer Services</h1>
         </div>
         <div class = "row">
             <div class = "col-4">
@@ -64,6 +64,18 @@
                 </div>
                 <div class = "row" style = "margin: 20px;">
                     <input type = "password" name = "password" id = "user_password" placeholder = "Password" class = "form-control" required>
+                    <div class = "custom-control custom-checkbox" style = "margin-top: 10px;">
+                        <input type = "checkbox" class = "custom-control-input" id = "showMainPassword">
+                        <label class = "custom-control-label" for = "showMainPassword">show password</label>
+                    </div>
+                </div>
+                <div class = "row" style = "margin: 20px;">
+                    <span class = "text-danger" id = "confirmPasswordError"></span>
+                    <input type = "password" id = "confirm_user_password" placeholder = "Re-write password" class = "form-control" required>
+                    <div class = "custom-control custom-checkbox" style = "margin-top: 10px;">
+                        <input type = "checkbox" class = "custom-control-input" id = "showConfirmPassword">
+                        <label class = "custom-control-label" for = "showConfirmPassword">show password</label>
+                    </div>
                 </div>
                 <div class = "row" style = "margin: 20px;">
                     <label>Gender</label>
@@ -178,8 +190,9 @@
             document.querySelector("#submitButton").addEventListener("click", (event) => {
                 let phoneAlert = document.querySelector("#phoneValidationMessage").innerHTML;
                 let mailAlert = document.querySelector("#alertMail").innerHTML;
+                let confirmPass = document.querySelector("#confirmPasswordError").innerHTML;
 
-                if(mailAlert == "this mail is taken" || phoneAlert != "")
+                if(mailAlert == "this mail is taken" || phoneAlert != "" || confirmPass != "")
                 {
                     event.preventDefault();
                 }else
@@ -188,5 +201,45 @@
                 }
             });
         </script>
+
+        <script>
+            document.querySelector("#showMainPassword").addEventListener("click", () => {
+                let mainPass = document.querySelector("#user_password");
+                if(mainPass.type == "password")
+                {
+                    mainPass.type = "text";
+                }else
+                {
+                    mainPass.type = "password";
+                }
+            });
+       
+            document.querySelector("#showConfirmPassword").addEventListener("click", () => {
+                let confirmPass = document.querySelector("#confirm_user_password");
+                if(confirmPass.type == "password")
+                {
+                    confirmPass.type = "text";
+                }else
+                {
+                    confirmPass.type = "password"
+                }
+            });
+
+            document.querySelector("#confirm_user_password").addEventListener("focusout", () => {
+
+                let confirmedPass = document.querySelector("#confirm_user_password").value;
+                let originPass = document.querySelector("#user_password").value;
+                if(confirmedPass != originPass)
+                {
+                    document.querySelector("#confirmPasswordError").innerHTML = "Rewrite the same password";
+                }else
+                {
+                    document.querySelector("#confirmPasswordError").innerHTML = "";
+                }
+            });
+       
+        </script>
+
+        
 </body>
 </html>

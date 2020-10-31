@@ -20,7 +20,10 @@
     <body>
         <div class = "container-fluid">
             <div class = "row bg-dark text-white">
-                <h2>Mail Services</h2>
+                <h2>Mailer Services</h2>
+            </div>
+            <div id = "userStatusDiv" style = "display: none;">
+                <strong id = "userStatus"></strong>
             </div>
             <div>
                 <table class = "table">
@@ -43,6 +46,6 @@
             </div>
             
         </div>
-
+        <script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
     </body>
 </html>

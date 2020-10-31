@@ -30,7 +30,7 @@ def view_profile():
         user_record['ACCOUNT_CREATION_DATE'] =  data[8]
 
     sqlite_connection.close()
-    return render_template("User_Profile/ViewProfile.html", user = user_record)
+    return render_template("User_Profile/ViewProfile.html", user = user_record, user_mail = session["email"])
 
 @user_profile_bp.route('/EditProfileForm')
 def edit_profile_form():
@@ -48,7 +48,7 @@ def edit_profile_form():
         user_record['CONTACT'] = data[8]
         user_record['ACCOUNT_CREATRION_DATE'] = data[9]
     sqlite_connection.close()
-    return render_template('User_Profile/editProfileForm.html', user = user_record)
+    return render_template('User_Profile/editProfileForm.html', user = user_record, user_mail = session["email"])
 
 @user_profile_bp.route("/Editing", methods = ['POST'])
 def edit_profile():
@@ -79,7 +79,7 @@ def view_all_users():
     select_allusers_query = """SELECT user_id , user_name, user_email FROM user WHERE user_id != ?;"""
     allUsers = sqlite_connection.execute(select_allusers_query, (get_user_id(session["email"]),)).fetchall()
     sqlite_connection.close()
-    return render_template("User_Profile/allUsers.html", allUsers = allUsers)
+    return render_template("User_Profile/allUsers.html", allUsers = allUsers, user_mail = session["email"])
    
 
 
@@ -121,7 +121,7 @@ def contact_us():
         admin_data["admin_phone"] = admin[1]
         all_admins.append(admin_data)
         admin_data = {}
-    return render_template("User_Profile/contactUs.html", all_admins = all_admins)
+    return render_template("User_Profile/contactUs.html", all_admins = all_admins, user_mail = session["email"])
 
 
 @user_profile_bp.route("/user-activity", methods = ["GET"])

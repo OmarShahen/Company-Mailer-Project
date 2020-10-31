@@ -21,7 +21,10 @@
 <body>
     <div class = 'container-fluid'> 
     <div id = "headerBar">
-        <h2>Mail Services</h2>
+        <h2>Mailer Services</h2>
+    </div>
+    <div id = "userStatusDiv" style = "display: none;">
+        <strong id = "userStatus"></strong>
     </div>
     <div id = "successMessage">
 
@@ -90,5 +93,6 @@
         {%endfor%}
     {%endif%}
 {%endwith%}
+<script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
 </body>
 </html>

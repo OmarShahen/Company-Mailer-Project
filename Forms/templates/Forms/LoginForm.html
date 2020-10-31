@@ -21,7 +21,7 @@
     
     <div class = "container-fluid">
         <div class = "row text-white bg-dark">
-            <h1>Welcome to Mail Services</h1>
+            <h1>Welcome To Mailer Services</h1>
         </div>
 <div class = "row">
     <div class = "col-4">
@@ -65,6 +65,22 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class = "modal fade" role = "dialog" id = "invalidForgotEmail">
+            <div class = "modal-dialog">
+                <div class = "modal-content">
+                    <div class = "modal-header">
+                        <button class = "close" data-dismiss = "modal">&times;</button>
+                    </div>
+                    <div class = "modal-body">
+                        <p id = "invalidForgotEmailMessage"></p>
+                    </div>
+                    <div class = "modal-footer">
+                        <button class = "btn btn-primary float-right" data-dismiss = "modal">OK</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
         <div class = "card-body container-fluid">
             <div id = "alertMessage">
@@ -134,6 +150,15 @@
                     {% endfor %}
                 {% endif %}
     {% endwith %}
-            
+    {% with messages = get_flashed_messages(category_filter = ["invalid_mail"])%}
+        {% if messages %}
+            {% for message in messages %}
+                <script>
+                    document.querySelector("#invalidForgotEmailMessage").innerHTML = "{{message}}";
+                    $("#invalidForgotEmail").modal();
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 </body>
 </html>
