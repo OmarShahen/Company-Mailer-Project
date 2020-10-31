@@ -30,6 +30,9 @@
             <div class = "row text-white bg-dark">
                 <h1>Mailer Services</h1>
             </div>
+            <div id = "userStatusDiv" style = "display: none;">
+                <strong id = "userStatus"></strong>
+            </div>
             <div class = "row">
                 <div style = "margin-left: auto;margin-right: auto;margin-top: 100px;">
                     <table>
@@ -80,5 +83,6 @@
                 window.location.href = "{{url_for('user_mail_bp.see_inbox')}}";
             });
         </script>
+        <script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
     </body>
 </html>

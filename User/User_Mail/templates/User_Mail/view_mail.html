@@ -22,6 +22,9 @@
             <div class = "row bg-dark text-white">
                 <h1>Mailer Services</h1>
             </div>
+            <div id = "userStatusDiv" style = "display: none;">
+                <strong id = "userStatus"></strong>
+            </div>
             <div>
                 <ul class = "nav nav-justified bg-light">
                     
@@ -161,5 +164,6 @@
             xhttp.open("GET", "{{url_for('user_mail_bp.get_mail_body', mail_id = mail['mail_id'])}}", true);
             xhttp.send();
         </script>
+        <script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
     </body>
 </html>

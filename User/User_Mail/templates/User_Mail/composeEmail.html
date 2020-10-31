@@ -24,6 +24,9 @@
         <div class = "row text-white bg-dark">
             <h1>Mailer Services</h1>
         </div>
+        <div id = "userStatusDiv" style = "display: none;">
+            <strong id = "userStatus"></strong>
+        </div>
         <div>
             <ul class = "nav nav-justified bg-light">
                 
@@ -221,5 +224,5 @@ tinymce.init({
   }
 });
 </script>
-
+<script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
 </html>

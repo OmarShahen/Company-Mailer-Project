@@ -26,6 +26,9 @@
         <div class = "row text-white bg-dark">
             <h1>Mailer Services</h1>
         </div>
+        <div id = "userStatusDiv" style = "display: none;">
+            <strong id = "userStatus"></strong>
+        </div>
         <div>
             <ul class = "nav nav-justified bg-light">
                 
@@ -65,8 +68,6 @@
             <h2>Inbox</h2>
         </div>  
         <div>
-        
-
         <div class = "row">
             <input type = "text" id = "searchBar" class = "form-control" placeholder = "Search with E-mail" style = "margin: 20px;">
         </div>
@@ -115,6 +116,7 @@
             xhttp.send();
         }
     </script>
+    <script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
 
 </body>
 </html>

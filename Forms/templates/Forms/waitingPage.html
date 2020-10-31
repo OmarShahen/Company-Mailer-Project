@@ -21,6 +21,9 @@
             <div class = "row text-white bg-dark">
                 <h1>Mailer Services</h1>
             </div>
+            <div id = "userStatusDiv" style = "display: none;">
+                <strong id = "userStatus"></strong>
+            </div>
             <div class = "modal fade" role = "dialog" id = "newComerMessage">
                 <div class = "modal-dialog modal-lg">
                     <div class = "modal-content">
@@ -67,4 +70,5 @@
             xhttp.send();
         }
     </script>
+    <script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
 </html>

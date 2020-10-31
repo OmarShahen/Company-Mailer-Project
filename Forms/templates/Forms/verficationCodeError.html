@@ -21,6 +21,9 @@
             <div class = "row text-white bg-dark">
                 <h1>Mailer Services</h1>
             </div>
+            <div id = "userStatusDiv" style = "display: none;">
+                <strong id = "userStatus"></strong>
+            </div>
             <div class = "row">
                 <div class = "col-2"></div>
                 <div class = "card" style = "margin-right: auto;margin-left: auto;margin-top: 100px;width: 500px;height:220px;">
@@ -52,6 +55,6 @@
             
             
 
-       
+        <script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
     </body>
 </html>
