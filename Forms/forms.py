@@ -170,7 +170,6 @@ def valid_login():
     if request.method == 'POST':
 
         sqlite_connection = sqlite3.connect('MAIL_DB.db')
-
         email = request.form['email']
         password = request.form['password']
 
