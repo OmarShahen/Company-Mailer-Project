@@ -10,6 +10,7 @@ import os
 import random
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from twilio.rest import Client
 
 forms_bp = Blueprint('forms_bp', __name__, template_folder = 'templates', static_folder = 'static')
 
@@ -130,6 +131,25 @@ def get_visits_number(user_mail):
     sqlite_connection.close()
     return visits_number
 
+def send_admin_request_sms(user_name, user_email, user_gender, user_contact, user_city, user_country):
+    account_sid = current_app.config["TWILIO_ACCOUNT_SID"]
+    auth_token = current_app.config["TWILIO_AUTH_TOKEN"]
+    message_body = f"""User Request:-
+                      Name: {user_name}
+                      E-mail: {user_email}
+                      Gender: {user_gender}
+                      Country: {user_country}
+                      City: {user_city}
+                      Contact: {user_contact}
+                      """
+    client = Client(account_sid, auth_token)
+    client.messages.create(
+        to = current_app.config["ADMIN_CONTACT"],
+        from_ = current_app.config["ADMIN_TWILIO_NUMBER"],
+        body = message_body
+                         )
+
+
 
 
 @forms_bp.route('/')
@@ -237,6 +257,7 @@ def validation():
     sqlite_connection.execute(data_query, user_data)
     sqlite_connection.commit()
     sqlite_connection.close()
+    send_admin_request_sms(name, email, gender, contact, city, country)
 
     return redirect(url_for('forms_bp.waiting_page', user_name = name, user_mail = request.form['email']))
 
@@ -279,7 +300,6 @@ def phone_validator(phone_number):
         response_message["valid"] = False
         response_message["message"] = "this number is taken"
         return jsonify(response_message)
-
 
 
 @forms_bp.route("/forgot-password", methods = ["POST"])
@@ -341,6 +361,11 @@ def resend_verfication_code(receiver_mail):
 
 @forms_bp.route("/verfiy-code/<user_mail>/<ver_id>", methods = ["POST"])
 def verfiy_code(user_mail, ver_id):
+    try:
+        int(request.form.get("verficationCodeField"))
+    except Exception:
+        return redirect(url_for("forms_bp.verfication_code_error", user_mail = user_mail))
+    
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
     select_ver_code_query = """SELECT verfication_code, birth_date FROM verfication_code WHERE verfication_id = ?;"""
     db_ver_data = sqlite_connection.execute(select_ver_code_query, (ver_id,))

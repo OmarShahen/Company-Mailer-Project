@@ -86,6 +86,29 @@
                 
             }
         </script>
+        <script>
+            document.querySelector("#submitBtn").addEventListener("click", (event) => {
+                let userInput = document.querySelector("#verficationField").value;
+                let allowedInput = "01234567890";
+                let valid = false;
+                for(let i=0;i<userInput.length;i++)
+                {
+                    valid = false;
+                    for(let j=0;j<allowedInput.length;j++)
+                    {
+                        if(userInput[i] == allowedInput[j])
+                        {
+                            valid = true;
+                            break;
+                        }
+                    }
+                    if(valid == false)
+                    {
+                        event.preventDefault();
+                    }
+                }
+            });
+        </script>
        <script src = "{{url_for('static', filename = 'js/userStatus.js')}}"></script>
     </body>
 </html>
