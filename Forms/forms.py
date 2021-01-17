@@ -162,6 +162,12 @@ def send_admin_request_sms(user_name, user_email, user_gender, user_contact, use
     )
 
 
+def check_authentication():
+    if session.get('email') == None:
+        return False
+    return True
+
+
 @forms_bp.route('/')
 @forms_bp.route('/LoginForm')  # LoginForm
 def login_form_page():

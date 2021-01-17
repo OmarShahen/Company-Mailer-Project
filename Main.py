@@ -18,14 +18,12 @@ else:
 app.config['SECRET_KEY'] = 'bdksjbgbnfgbbsaghroeihgiknv'
 
 
-
 app.register_blueprint(forms_bp)
 app.register_blueprint(user_profile_bp)
 app.register_blueprint(user_mail_bp)
-app.register_blueprint(users_api_bp, url_prefix = '/api')
+app.register_blueprint(users_api_bp, url_prefix='/api')
 app.register_blueprint(admin_bp)
 
 
-
 if __name__ == "__main__":
-    app.run(debug = True)
+    app.run(debug=True)

@@ -6,9 +6,11 @@ import smtplib
 import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from Forms.forms import check_authentication
 
 
 def get_all_waiting_requests():
+    check_authentication()
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
     select_query = """SELECT waiting_id FROM waiting_list;"""
     db_all_requests = sqlite_connection.execute(select_query)
@@ -24,6 +26,8 @@ admin_bp = Blueprint("admin_bp", __name__, template_folder="templates")
 
 @admin_bp.route("/admin/main-page")
 def admin_page():
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
 
     check_unauthorized_query = """SELECT user_email FROM unauthorize;"""
@@ -55,6 +59,8 @@ def admin_page():
 
 @admin_bp.route("/admin/unauthorize/<string:user_mail>", methods=["GET"])
 def admin_unauthorize(user_mail):
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
     insert_mail_query = """INSERT INTO unauthorize (user_email) VALUES(?);"""
     sqlite_connection.execute(insert_mail_query, (user_mail,))
@@ -66,6 +72,8 @@ def admin_unauthorize(user_mail):
 
 @admin_bp.route("/admin/authorize/<string:user_mail>", methods=["GET"])
 def admin_authorize(user_mail):
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
     remove_mail_query = """DELETE FROM unauthorize WHERE user_email = ?;"""
     sqlite_connection.execute(remove_mail_query, (user_mail,))
@@ -77,6 +85,8 @@ def admin_authorize(user_mail):
 
 @admin_bp.route("/admin/user-activity/users-requests", methods=["GET"])
 def check_status():
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
     select_status_query = """SELECT user_active FROM user;"""
     db_users_activity = sqlite_connection.execute(select_status_query)
@@ -91,6 +101,8 @@ def check_status():
 
 @admin_bp.route("/admin/add-admin", methods=["POST"])
 def add_admin():
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     admin_mail = request.form.get("adminMail")
     admin_password = request.form.get("adminPassword")
     admin_phone = request.form.get("adminPhone")
@@ -114,6 +126,8 @@ def add_admin():
 
 @admin_bp.route("/admin/emails-validator/<input_mail>")
 def email_validator(input_mail):
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     if "@" not in input_mail:
         input_mail = input_mail + "@"
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
@@ -130,7 +144,8 @@ def email_validator(input_mail):
 
 @admin_bp.route("/admin/phone-number-validator/<phone_number>")
 def phone_validator(phone_number):
-    print(phone_number_validator(phone_number))
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     if phone_number_validator(phone_number) == False:
         return jsonify("This number is taken")
     return jsonify("")
@@ -138,6 +153,8 @@ def phone_validator(phone_number):
 
 @admin_bp.route("/admin/users-requests")
 def waiting_requests():
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
     select_requests_query = """SELECT * FROM waiting_list;"""
     db_waiting_requests = sqlite_connection.execute(select_requests_query)
@@ -160,6 +177,8 @@ def waiting_requests():
 
 @admin_bp.route("/admin/accept-request/add-user/<request_id>")
 def add_user(request_id):
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
 
     waiting_select_query = """SELECT user_name, user_email, user_password, user_gender
@@ -220,6 +239,8 @@ def add_user(request_id):
 
 @admin_bp.route("/admin/remove-request/<request_id>")
 def remove_request(request_id):
+    if check_authentication() == False:
+        return redirect(url_for('forms_bp.login_form_page'))
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
     delete_query = "DELETE FROM waiting_list WHERE waiting_id = ?;"
     sqlite_connection.execute(delete_query, request_id)
