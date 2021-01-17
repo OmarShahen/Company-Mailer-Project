@@ -31,7 +31,6 @@
                 <h1>Mailer Services</h1>
             </div>
             <div id = "userStatusDiv" style = "display: none;">
-                <strong id = "userStatus"></strong>
             </div>
             <div class = "row">
                 <div class = "modal fade" role = "dialog" id = "adminForm">
@@ -141,8 +140,7 @@
                 {
                     serverStatusRespond = JSON.parse(this.responseText);
                     document.querySelector("#waitingRequests").innerHTML = serverStatusRespond["waiting_list"]
-                    
-                    for(let i=0;i<userStatus.length;i++)
+                    for(let i=1;i<userStatus.length;i++)
                     {
                         if(serverStatusRespond["users_status"][i] == true)
                         {

@@ -85,8 +85,6 @@ def admin_authorize(user_mail):
 
 @admin_bp.route("/admin/user-activity/users-requests", methods=["GET"])
 def check_status():
-    if check_authentication() == False:
-        return redirect(url_for('forms_bp.login_form_page'))
     sqlite_connection = sqlite3.connect("MAIL_DB.db")
     select_status_query = """SELECT user_active FROM user;"""
     db_users_activity = sqlite_connection.execute(select_status_query)
@@ -95,7 +93,8 @@ def check_status():
         users_activity.append(status[0])
     waiting_requests = get_all_waiting_requests()
     response_data = {"users_status": users_activity,
-                     "waiting_list": waiting_requests}
+                     "waiting_list": waiting_requests,
+                     }
     return jsonify(response_data)
 
 

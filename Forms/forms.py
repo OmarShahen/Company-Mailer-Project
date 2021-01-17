@@ -227,8 +227,6 @@ def valid_login():
 
 @forms_bp.route('/validLogin/<user_email>/<user_password>', methods=["POST"])
 def auto_redirect(user_email, user_password):
-    print(user_email)
-    print(user_password)
     if check_user_exist(user_email, user_password):
         session['email'] = user_email
         session['password'] = user_password
