@@ -39,6 +39,7 @@
                             <td>{{request["user_country"]}}</td>
                             <td>{{request["user_contact"]}}</td>
                             <td><a href = "{{url_for('admin_bp.add_user', request_id = request['user_id'])}}" class = "btn btn-primary">Accept</a></td>
+                            <td><a href = "{{url_for('admin_bp.remove_request', request_id = request['user_id'])}}" class = "btn btn-danger">Deny</a></td>
                         </tr>
                     {% endfor %}
                     </tbody>

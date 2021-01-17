@@ -336,8 +336,6 @@ def get_mail_body(mail_id):
 
 @user_mail_bp.route("/download-file/<file_name>")
 def download_file(file_name):
-
-    print("in download")
     try:
         return send_from_directory(current_app.config['USER_ATTACHMENTS'], filename = secure_filename(file_name), as_attachment = True)
     

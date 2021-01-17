@@ -28,7 +28,7 @@
             <div class = "col-4">
 
             </div>
-        <div class = "card" style = "margin-top: 20px;">
+        <div class = "card" style = "margin-top: 20px;margin-bottom: 20px;">
             <div class = "card-header text-center">
                 <h4>Mail Services</h4>
             </div>
@@ -81,10 +81,18 @@
                     <label>Gender</label>
                 </div>
                 <div class = "row" style = "margin: 20px;">
-                    <input type = "radio" name = "gender" value = "Male" required checked>Male
+                    <div class = "custom-control custom-radio">
+                        <input type = "radio" id = "genderMale" class = "custom-control-input" name = "gender" value = "Male" required checked>
+                        <label for = "genderMale" class = "custom-control-label">Male</label>
+                    </div>
+                    
                 </div>
                 <div class = "row" style = "margin: 20px;">
-                    <input type = "radio" name = "gender" value = "Female" required>Female
+                    <div class = "custom-control custom-radio">
+                        <input type = "radio" name = "gender" id = "genderFemale" class = "custom-control-input" value = "Female" required>
+                        <label class = "custom-control-label" for = "genderFemale">Female</label>
+                    </div>
+                    
                 </div>
                 <div class = "row" style = "margin: 20px;">
                     <label for = "user_birth">Date Of Birth</label>
@@ -112,16 +120,25 @@
                     <input type = "text" name = "contact" id = "user_contact" placeholder = "Contact" class = "form-control" required>
                 </div>
                 <div class = "row" style = "margin: 20px;">
-                    <input type = "checkbox" name = "makeCookies" id = "makeCookies"  onclick = "storeCookie()">
-                    <label for = "makeCookies">Remeber me</label>
+                    <div class = "custom-control custom-checkbox" style = "margin-top: 10px;">
+                        <input type = "checkbox" class = "custom-control-input" id = "remeber_me">
+                        <label class = "custom-control-label" for = "remeber_me">Remeber me</label>
+                    </div>
+                </div>
+                <div class = "row justify-content-center">
+                    <input type = "submit" value = "Submit" class = "btn btn-primary float-right" id = "submitButton">
+                </div>
+                    
                 </div>
             
-                <input type = "submit" value = "Submit" class = "btn btn-primary" id = "submitButton">
+                
 
     </form>
         </div>
-        <div class = "card-footer" style = "margin-bottom: 50px;">
+        <div class = "row">
+
         </div>
+        
         </div>
         </div>
         <div class = "col-4">

@@ -95,15 +95,24 @@
                 <label for = "user_password">Password:</label>
                 <input type = "password" name = "password" id = "user_password" class = "form-control" placeholder = " Enter Password..." required>
         </div>
-        <div class = "form-group form-check">
-            <label style = "margin-left: 20px;"class = "form-check-label">
-            <input type = "checkbox" class = "form-check-input" id = "user_checkbox" name = "checkbox">
-            Remeber me</label>
+        <div class = "form-group" style = "margin-left: 20px;">
+            <div class = "custom-control custom-checkbox">
+                <input type = "checkbox" class = "custom-control-input" id = "user_checkbox" name = "checkbox">
+                <label class = "custom-control-label" for = "user_checkbox">Remeber me</label>
+            </div>
+            
         </div>
-        <div class = "form-group">
-                <input type = "submit" value = "Login" class = "btn btn-primary" style = "margin: 20px;" id = "submitButton" onclick = "makeCookies()">
-                <a href = "/RegisterationForm" class = "btn btn-primary" style = "margin: 20px;">SignUP!</a> 
-                <a href = "#" style = "margin-right: 20px;" data-toggle = "modal" data-target = "#forgotMail">Forgot password</a>
+        <div class = "row">
+            <div class = "col-xs-3">
+                <input type = "submit" value = "Login" class = "btn btn-primary"style = "margin-bottom: 20px;margin-left: 20px;margin-right: 20px;" id = "submitButton" onclick = "makeCookies()">
+            </div>
+            <div class = "col-xs-3">
+                <a href = "/RegisterationForm" style = "margin-left: 20px;margin-right: 20px;margin-bottom: 20px;"class = "btn btn-primary">SignUP!</a> 
+            </div>
+            <div class = "col-xs-3">
+                <a href = "#" style = "margin-left: 20px;margin-right: 20px;margin-bottom: 20px;" data-toggle = "modal" data-target = "#forgotMail">Forgot password</a>
+            </div>
+                
         </div>
         </form>
         </div>

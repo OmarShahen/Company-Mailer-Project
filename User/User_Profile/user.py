@@ -54,17 +54,15 @@ def edit_profile_form():
 def edit_profile():
 
     new_name = request.form['user_name']
-    new_email = request.form['user_email']
     new_dateOfBirth = request.form['user_birthDate']
     new_city = request.form['user_city']
     new_country = request.form['user_country']
-    new_contact = request.form['user_contact']
     
 
     sqlite_connection  = sqlite3.connect('Mail_DB.db')
-    user_update_query = """UPDATE user SET user_name = ?, user_email = ?, user_date_of_birth = ?,
-                           user_city = ?, user_country = ?, user_contact = ?  WHERE user_email = ?;"""
-    user_update_query_data = (new_name, new_email, new_dateOfBirth, new_city, new_country, new_contact, session['email'])
+    user_update_query = """UPDATE user SET user_name = ?, user_date_of_birth = ?,
+                           user_city = ?, user_country = ? WHERE user_email = ?;"""
+    user_update_query_data = (new_name, new_dateOfBirth, new_city, new_country, session['email'])
     sqlite_connection.execute(user_update_query, user_update_query_data)
     sqlite_connection.commit()
     sqlite_connection.close()
